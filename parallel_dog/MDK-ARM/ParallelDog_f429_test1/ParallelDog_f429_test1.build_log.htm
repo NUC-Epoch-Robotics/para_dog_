@@ -1,0 +1,68 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Tool Versions:</h2>
+IDE-Version: ¦ÌVision V5.43.0.0
+Copyright (C) 2025 ARM Ltd and ARM Germany GmbH. All rights reserved.
+License Information: Slime Tommy, North University of China, LIC=D0D7S-LGI42-WFZI7-E7HBW-W6ZJJ-DQQ6J
+ 
+Tool Versions:
+Toolchain:       MDK-ARM Plus  Version: 5.43.0.0
+Toolchain Path:  C:\AppWorking\Keli5.43\ARM\ARMCC\Bin
+C Compiler:      Armcc.exe V5.06 update 6 (build 750)
+Assembler:       Armasm.exe V5.06 update 6 (build 750)
+Linker/Locator:  ArmLink.exe V5.06 update 6 (build 750)
+Library Manager: ArmAr.exe V5.06 update 6 (build 750)
+Hex Converter:   FromElf.exe V5.06 update 6 (build 750)
+CPU DLL:         SARMCM3.DLL V5.43.0.0
+Dialog DLL:      DCM.DLL V1.17.5.0
+Target DLL:      CMSIS_AGDI.dll V1.33.24.0
+Dialog DLL:      TCM.DLL V1.56.6.0
+ 
+<h2>Project:</h2>
+C:\STM32_Feil_Keil\parallel_dog (3)\parallel_dog\MDK-ARM\ParallelDog_f429_test1.uvprojx
+Project File Date:  12/20/2025
+
+<h2>Output:</h2>
+*** Using Compiler 'V5.06 update 6 (build 750)', folder: 'C:\AppWorking\Keli5.43\ARM\ARMCC\Bin'
+Build target 'ParallelDog_f429_test1'
+compiling dog.c...
+compiling rc.c...
+compiling main.c...
+compiling postrue_contrl_v2.c...
+compiling freertos.c...
+compiling postrue_control.c...
+..\Lib\Scr\postrue_control.c(123): warning:  #167-D: argument of type "bezierPoint (*)[4]" is incompatible with parameter of type "const bezierPoint (*)[4]"
+  		leg->bezier.pos =  bezierCurve(&leg->bezier.ctrl_point, leg->bezier.n,leg->bezier.t);//æ›´æ–°pos
+..\Lib\Scr\postrue_control.c: 1 warning, 0 errors
+linking...
+Program Size: Code=39360 RO-data=2820 RW-data=3020 ZI-data=25444  
+FromELF: creating hex file...
+"ParallelDog_f429_test1\ParallelDog_f429_test1.axf" - 0 Error(s), 1 Warning(s).
+
+<h2>Software Packages used:</h2>
+
+Package Vendor: ARM
+                https://www.keil.com/pack/ARM.CMSIS.6.2.0.pack
+                ARM::CMSIS@6.2.0
+                CMSIS (Common Microcontroller Software Interface Standard)
+   * Component: CORE Version: 6.1.1
+
+Package Vendor: Keil
+                https://www.keil.com/pack/Keil.STM32F4xx_DFP.3.1.1.pack
+                Keil::STM32F4xx_DFP@3.1.1
+                STMicroelectronics STM32F4 Series Device Support
+
+<h2>Collection of Component include folders:</h2>
+  ./RTE/_ParallelDog_f429_test1
+  C:/AppWorking/Keilapp_data/ARM/CMSIS/6.2.0/CMSIS/Core/Include
+
+<h2>Collection of Component Files used:</h2>
+
+   * Component: ARM::CMSIS:CORE@6.1.1
+      Include file:  CMSIS/Core/Include/tz_context.h
+Build Time Elapsed:  00:00:03
+</pre>
+</body>
+</html>
