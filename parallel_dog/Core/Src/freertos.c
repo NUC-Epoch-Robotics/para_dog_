@@ -59,7 +59,7 @@ Dog dog;
 uint8_t Rx_Temp=0;
 QueueHandle_t leg1_pidHandle;
 extern wit_t angle;
-	unsigned char buf[10]={0};
+unsigned char buf[64]={0};
 
 /* USER CODE END Variables */
 osThreadId defaultTaskHandle;
@@ -118,7 +118,7 @@ void MX_FREERTOS_Init(void) {
 
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
-	leg1_pidHandle=xQueueCreate(20,2*5*sizeof(float));
+	leg1_pidHandle=xQueueCreate(20, 10*sizeof(float));
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
@@ -152,30 +152,17 @@ void StartDefaultTask(void const * argument)
   /* init code for USB_DEVICE */
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN StartDefaultTask */
-	memset(dog.leg,0,sizeof(Leg) * 4);
+	memset(dog.leg, 0, sizeof(Leg) * 4);
 	hwt605_Init();
 	Dog_ParaInit(&dog);
-	HAL_UART_Receive_IT(&huart2,(uint8_t *)&Rx_Temp,1);
+	HAL_UART_Receive_IT(&huart2, (uint8_t *)&Rx_Temp, 1);
 
-//	osDelay(5000);
-//	leg[0].state=STEP_FORE; 
   /* Infinite loop */
   for(;;)
   {
-//	dog.state=STAND_UP_;
-//	osDelay(4000);
-//	dog.state=WALK_FORWARD;
-//		osDelay(4000);
-//	dog.state=TURN_RIGHT;
-	VCP_Read(buf,64);
-	CDC_Transmit_FS(buf,sizeof(buf));
+	VCP_Read(buf, 64);
+	CDC_Transmit_FS(buf, sizeof(buf));
 	osDelay(1000);
-//	dog.state=TURN_LEFT;
-//		osDelay(4000);
-//	dog.state=LOWWALK_FORWARD;
-//		osDelay(4000);
-	//	dog.state=JUMP_FORWARD;
-//		osDelay(4000);
   }
   /* USER CODE END StartDefaultTask */
 }
@@ -194,7 +181,6 @@ void calculateFunc(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-
 	dogTaskCtrl(&dog);
 	osDelay(10);
   }
@@ -215,18 +201,19 @@ void RC_Ctrl(void const * argument)
   for(;;)
   {
 	rc_remote_ctrl(&dog);
-    osDelay(10);
+	osDelay(10);
   }
   /* USER CODE END RC_Ctrl */
 }
 
 /* Private application code --------------------------------------------------*/
 /* USER CODE BEGIN Application */
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
-
-	if(huart==&huart2){ 
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+	if(huart == &huart2)
+	{ 
 		SBUS_Reveive(Rx_Temp);
-		HAL_UART_Receive_IT(&huart2,(uint8_t *)&Rx_Temp,1);
+		HAL_UART_Receive_IT(&huart2, (uint8_t *)&Rx_Temp, 1);
 	}
 }
 /* USER CODE END Application */
