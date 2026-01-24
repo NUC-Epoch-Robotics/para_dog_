@@ -3,7 +3,7 @@ paralleldog_f429_test1\usb_device.o: ../USB_DEVICE/App/usb_device.h
 paralleldog_f429_test1\usb_device.o: ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h
 paralleldog_f429_test1\usb_device.o: ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f429xx.h
 paralleldog_f429_test1\usb_device.o: ../Drivers/CMSIS/Include/core_cm4.h
-paralleldog_f429_test1\usb_device.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stdint.h
+paralleldog_f429_test1\usb_device.o: E:\KEIL5\core\ARM\ARMCC\Bin\..\include\stdint.h
 paralleldog_f429_test1\usb_device.o: ../Drivers/CMSIS/Include/cmsis_version.h
 paralleldog_f429_test1\usb_device.o: ../Drivers/CMSIS/Include/cmsis_compiler.h
 paralleldog_f429_test1\usb_device.o: ../Drivers/CMSIS/Include/cmsis_armcc.h
@@ -15,7 +15,7 @@ paralleldog_f429_test1\usb_device.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4
 paralleldog_f429_test1\usb_device.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h
 paralleldog_f429_test1\usb_device.o: ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h
 paralleldog_f429_test1\usb_device.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h
-paralleldog_f429_test1\usb_device.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stddef.h
+paralleldog_f429_test1\usb_device.o: E:\KEIL5\core\ARM\ARMCC\Bin\..\include\stddef.h
 paralleldog_f429_test1\usb_device.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc_ex.h
 paralleldog_f429_test1\usb_device.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio.h
 paralleldog_f429_test1\usb_device.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio_ex.h
@@ -37,9 +37,9 @@ paralleldog_f429_test1\usb_device.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4
 paralleldog_f429_test1\usb_device.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h
 paralleldog_f429_test1\usb_device.o: ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_def.h
 paralleldog_f429_test1\usb_device.o: ../USB_DEVICE/Target/usbd_conf.h
-paralleldog_f429_test1\usb_device.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stdio.h
-paralleldog_f429_test1\usb_device.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stdlib.h
-paralleldog_f429_test1\usb_device.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\string.h
+paralleldog_f429_test1\usb_device.o: E:\KEIL5\core\ARM\ARMCC\Bin\..\include\stdio.h
+paralleldog_f429_test1\usb_device.o: E:\KEIL5\core\ARM\ARMCC\Bin\..\include\stdlib.h
+paralleldog_f429_test1\usb_device.o: E:\KEIL5\core\ARM\ARMCC\Bin\..\include\string.h
 paralleldog_f429_test1\usb_device.o: ../Core/Inc/main.h
 paralleldog_f429_test1\usb_device.o: ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_core.h
 paralleldog_f429_test1\usb_device.o: ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h

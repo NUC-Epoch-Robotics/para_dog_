@@ -1,7 +1,7 @@
 paralleldog_f429_test1\postrue_control.o: ..\Lib\Scr\postrue_control.c
 paralleldog_f429_test1\postrue_control.o: ../Lib/Inc/postrue_control.h
 paralleldog_f429_test1\postrue_control.o: ../Lib/Inc/dog.h
-paralleldog_f429_test1\postrue_control.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stdint.h
+paralleldog_f429_test1\postrue_control.o: E:\KEIL5\core\ARM\ARMCC\Bin\..\include\stdint.h
 paralleldog_f429_test1\postrue_control.o: ../Lib/Inc/GO_ctrl.h
 paralleldog_f429_test1\postrue_control.o: ../Lib/Inc/motor_control.h
 paralleldog_f429_test1\postrue_control.o: ../Core/Inc/main.h
@@ -19,7 +19,7 @@ paralleldog_f429_test1\postrue_control.o: ../Drivers/CMSIS/Include/mpu_armv7.h
 paralleldog_f429_test1\postrue_control.o: ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/system_stm32f4xx.h
 paralleldog_f429_test1\postrue_control.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h
 paralleldog_f429_test1\postrue_control.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h
-paralleldog_f429_test1\postrue_control.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stddef.h
+paralleldog_f429_test1\postrue_control.o: E:\KEIL5\core\ARM\ARMCC\Bin\..\include\stddef.h
 paralleldog_f429_test1\postrue_control.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc_ex.h
 paralleldog_f429_test1\postrue_control.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio.h
 paralleldog_f429_test1\postrue_control.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio_ex.h
@@ -41,10 +41,10 @@ paralleldog_f429_test1\postrue_control.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/st
 paralleldog_f429_test1\postrue_control.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h
 paralleldog_f429_test1\postrue_control.o: ../Lib/Inc/ris_protocol.h
 paralleldog_f429_test1\postrue_control.o: ../Lib/Inc/curve.h
-paralleldog_f429_test1\postrue_control.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\math.h
-paralleldog_f429_test1\postrue_control.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stdio.h
-paralleldog_f429_test1\postrue_control.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\string.h
-paralleldog_f429_test1\postrue_control.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stdlib.h
+paralleldog_f429_test1\postrue_control.o: E:\KEIL5\core\ARM\ARMCC\Bin\..\include\math.h
+paralleldog_f429_test1\postrue_control.o: E:\KEIL5\core\ARM\ARMCC\Bin\..\include\stdio.h
+paralleldog_f429_test1\postrue_control.o: E:\KEIL5\core\ARM\ARMCC\Bin\..\include\string.h
+paralleldog_f429_test1\postrue_control.o: E:\KEIL5\core\ARM\ARMCC\Bin\..\include\stdlib.h
 paralleldog_f429_test1\postrue_control.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
 paralleldog_f429_test1\postrue_control.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
 paralleldog_f429_test1\postrue_control.o: ../Core/Inc/FreeRTOSConfig.h

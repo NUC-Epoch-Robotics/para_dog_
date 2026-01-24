@@ -10,6 +10,7 @@
 #include "GO_ctrl.h"
 #define pi 3.141592
 void Dog_ParaInit(Dog *dog) {
+	memset(&dog->leg, 0, sizeof(Leg) * 4);
 	dog->state=STAND_UP_;
 	for (uint8_t i = 0; i < 4; i++) {
         dog->leg[i] = (Leg){
@@ -22,7 +23,7 @@ void Dog_ParaInit(Dog *dog) {
         };
     }
 
-    for (uint8_t i = 0; i < 4; i++) {
+for (uint8_t i = 0; i < 4; i++) {
         if (GO_init(&dog->leg[i].motor_ctrl_linkf, (dog->leg[i].id)*2 - 1) != HAL_OK) {
             Error_Handler(); 
         }
@@ -78,7 +79,7 @@ void Pose_Inverse_Kinematics(Leg *leg) {//给定x,y,驱动电机旋转
 }
 
 void motor_Ctrl(Leg (*leg_prt)[4]){
-	for(uint8_t i=0;i<=3;i++){
+	for(uint8_t i=0;i<4;i++){
 		leg_prt[0][i].motor_ctrl_linkf.cmd.id  =leg_prt[0][i].motor_ctrl_linkf.id;
 		leg_prt[0][i].motor_ctrl_linkf.cmd.mode=1;
 		leg_prt[0][i].motor_ctrl_linkf.cmd.K_P =leg_prt[0][i].motor_ctrl_linkf.pid.K_P;

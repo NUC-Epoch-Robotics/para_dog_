@@ -1,7 +1,7 @@
 paralleldog_f429_test1\freertos.o: ../Core/Src/freertos.c
 paralleldog_f429_test1\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
-paralleldog_f429_test1\freertos.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stddef.h
-paralleldog_f429_test1\freertos.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stdint.h
+paralleldog_f429_test1\freertos.o: E:\KEIL5\core\ARM\ARMCC\Bin\..\include\stddef.h
+paralleldog_f429_test1\freertos.o: E:\KEIL5\core\ARM\ARMCC\Bin\..\include\stdint.h
 paralleldog_f429_test1\freertos.o: ../Core/Inc/FreeRTOSConfig.h
 paralleldog_f429_test1\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h
 paralleldog_f429_test1\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h
@@ -55,7 +55,7 @@ paralleldog_f429_test1\freertos.o: ../Lib/Inc/postrue_control.h
 paralleldog_f429_test1\freertos.o: ../Lib/Inc/dog.h
 paralleldog_f429_test1\freertos.o: ../Lib/Inc/GO_ctrl.h
 paralleldog_f429_test1\freertos.o: ../Lib/Inc/curve.h
-paralleldog_f429_test1\freertos.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\math.h
+paralleldog_f429_test1\freertos.o: E:\KEIL5\core\ARM\ARMCC\Bin\..\include\math.h
 paralleldog_f429_test1\freertos.o: ../Lib/Inc/rc.h
 paralleldog_f429_test1\freertos.o: ../Lib/Inc/bsp_sbus.h
 paralleldog_f429_test1\freertos.o: ../Core/Inc/usart.h
@@ -64,9 +64,9 @@ paralleldog_f429_test1\freertos.o: ../Middlewares/ST/STM32_USB_Device_Library/Cl
 paralleldog_f429_test1\freertos.o: ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h
 paralleldog_f429_test1\freertos.o: ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_def.h
 paralleldog_f429_test1\freertos.o: ../USB_DEVICE/Target/usbd_conf.h
-paralleldog_f429_test1\freertos.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stdio.h
-paralleldog_f429_test1\freertos.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stdlib.h
-paralleldog_f429_test1\freertos.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\string.h
+paralleldog_f429_test1\freertos.o: E:\KEIL5\core\ARM\ARMCC\Bin\..\include\stdio.h
+paralleldog_f429_test1\freertos.o: E:\KEIL5\core\ARM\ARMCC\Bin\..\include\stdlib.h
+paralleldog_f429_test1\freertos.o: E:\KEIL5\core\ARM\ARMCC\Bin\..\include\string.h
 paralleldog_f429_test1\freertos.o: ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_core.h
 paralleldog_f429_test1\freertos.o: ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h
 paralleldog_f429_test1\freertos.o: ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h

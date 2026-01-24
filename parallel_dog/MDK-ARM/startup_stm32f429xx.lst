@@ -885,9 +885,10 @@ ARM Macro Assembler    Page 14
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M4.fp.sp --apcs=
 interwork --depend=paralleldog_f429_test1\startup_stm32f429xx.d -oparalleldog_f
 429_test1\startup_stm32f429xx.o -I../Drivers/CMSIS/Include -I.\RTE\_ParallelDog
-_f429_test1 -IC:\AppWorking\Keilapp_data\ARM\CMSIS\6.2.0\CMSIS\Core\Include --p
-redefine="__UVISION_VERSION SETA 543" --predefine="STM32F429xx SETA 1" --predef
-ine="_RTE_ SETA 1" --list=startup_stm32f429xx.lst startup_stm32f429xx.s
+_f429_test1 -IE:\KEIL5\pack\ARM\CMSIS\5.9.0\CMSIS\Core\Include --predefine="__U
+VISION_VERSION SETA 537" --predefine="_RTE_ SETA 1" --predefine="STM32F429xx SE
+TA 1" --predefine="_RTE_ SETA 1" --list=startup_stm32f429xx.lst startup_stm32f4
+29xx.s
 
 
 

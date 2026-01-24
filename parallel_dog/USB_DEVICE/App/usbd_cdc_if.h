@@ -52,7 +52,8 @@
 #define APP_RX_DATA_SIZE  512
 #define APP_TX_DATA_SIZE  512
 /* USER CODE BEGIN EXPORTED_DEFINES */
-
+uint16_t VCP_Read(uint8_t *buf,uint16_t max_len);
+uint16_t VCP_GetRxCount(void);
 /* USER CODE END EXPORTED_DEFINES */
 
 /**

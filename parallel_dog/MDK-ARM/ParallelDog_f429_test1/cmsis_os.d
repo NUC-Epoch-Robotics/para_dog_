@@ -1,9 +1,9 @@
 paralleldog_f429_test1\cmsis_os.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.c
-paralleldog_f429_test1\cmsis_os.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\string.h
+paralleldog_f429_test1\cmsis_os.o: E:\KEIL5\core\ARM\ARMCC\Bin\..\include\string.h
 paralleldog_f429_test1\cmsis_os.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
 paralleldog_f429_test1\cmsis_os.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
-paralleldog_f429_test1\cmsis_os.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stddef.h
-paralleldog_f429_test1\cmsis_os.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stdint.h
+paralleldog_f429_test1\cmsis_os.o: E:\KEIL5\core\ARM\ARMCC\Bin\..\include\stddef.h
+paralleldog_f429_test1\cmsis_os.o: E:\KEIL5\core\ARM\ARMCC\Bin\..\include\stdint.h
 paralleldog_f429_test1\cmsis_os.o: ../Core/Inc/FreeRTOSConfig.h
 paralleldog_f429_test1\cmsis_os.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h
 paralleldog_f429_test1\cmsis_os.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h

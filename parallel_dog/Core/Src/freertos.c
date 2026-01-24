@@ -45,6 +45,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define RC_AUTO_ENABLE 0//1=RC;0=AUTO
 
 /* USER CODE END PD */
 
@@ -118,12 +119,12 @@ void MX_FREERTOS_Init(void) {
 
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
-	leg1_pidHandle=xQueueCreate(20, 10*sizeof(float));
+
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
   /* definition and creation of defaultTask */
-  osThreadDef(defaultTask, StartDefaultTask, osPriorityAboveNormal, 0, 128);
+  osThreadDef(defaultTask, StartDefaultTask, osPriorityAboveNormal, 0, 256);
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
   /* definition and creation of CalculateTask */
@@ -152,17 +153,14 @@ void StartDefaultTask(void const * argument)
   /* init code for USB_DEVICE */
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN StartDefaultTask */
-	memset(dog.leg, 0, sizeof(Leg) * 4);
 	hwt605_Init();
-	Dog_ParaInit(&dog);
 	HAL_UART_Receive_IT(&huart2, (uint8_t *)&Rx_Temp, 1);
-
   /* Infinite loop */
   for(;;)
   {
-	VCP_Read(buf, 64);
-	CDC_Transmit_FS(buf, sizeof(buf));
-	osDelay(1000);
+		VCP_Read(buf, 64);
+		CDC_Transmit_FS(buf, sizeof(buf));
+		osDelay(1000);
   }
   /* USER CODE END StartDefaultTask */
 }
@@ -176,8 +174,8 @@ void StartDefaultTask(void const * argument)
 /* USER CODE END Header_calculateFunc */
 void calculateFunc(void const * argument)
 {
-  /* USER CODE BEGIN calculateFunc */	
-	osDelay(1000);
+  /* USER CODE BEGIN calculateFunc */
+	Dog_ParaInit(&dog);
   /* Infinite loop */
   for(;;)
   {
@@ -197,6 +195,8 @@ void calculateFunc(void const * argument)
 void RC_Ctrl(void const * argument)
 {
   /* USER CODE BEGIN RC_Ctrl */
+
+  
   /* Infinite loop */
   for(;;)
   {
