@@ -148,8 +148,7 @@ void MX_FREERTOS_Init(void) {
   * @retval None
   */
 /* USER CODE END Header_StartDefaultTask */
-void StartDefaultTask(void const * argument)
-{
+void StartDefaultTask(void const  
   /* init code for USB_DEVICE */
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN StartDefaultTask */
@@ -158,8 +157,8 @@ void StartDefaultTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-		VCP_Read(buf, 64);
-		CDC_Transmit_FS(buf, sizeof(buf));
+		// VCP_Read(buf, 64);
+		// CDC_Transmit_FS(buf, sizeof(buf));
 		osDelay(1000);
   }
   /* USER CODE END StartDefaultTask */
