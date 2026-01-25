@@ -221,18 +221,20 @@ void RC_Ctrl(void const * argument)
 }
 void AutoMode(void const * argument){
   imu_kalman_init(&g_imu_kf, 0.03f, 0.1f);
+  uint32_t now;
   uint32_t last_tick = osKernelSysTick();
   for(;;){
-    uint32_t now = osKernelSysTick();
+    now = osKernelSysTick();
     float dt = (now - last_tick) * 0.001f; // ms -> s
     last_tick = now;
     if (dt > 0.0f)
     {
       imu_kalman_step_from_hwt(&g_imu_kf, &hwt_angle, dt);
       dog.location.yaw = imu_kalman_get_angle_deg(&g_imu_kf, 2);
-    }
-    printf("%f,%f\n",hwt_angle.fYaw,dog.location.yaw);
-	osDelay(10);
+      last_tick = osKernelSysTick();
+      }
+      printf("%f,%f\n",hwt_angle.fYaw,dog.location.yaw);
+      osDelay(10);
     }
 }
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
