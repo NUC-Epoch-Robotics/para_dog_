@@ -144,10 +144,6 @@ void MX_FREERTOS_Init(void) {
   dog.dog_mode=AUTO_OFFROAD;  
   osThreadDef(AutoModeTask, AutoMode, osPriorityNormal, 0, 512);
   AutoModeTaskHandle = osThreadCreate(osThread(AutoModeTask), NULL);
-  #elif DOG_SWITCH==AUTO_TASK
-  dog.dog_mode=AUTO_TASK;
-  osThreadDef(AutoModeTask, AutoMode, osPriorityNormal, 0, 512);
-  AutoModeTaskHandle = osThreadCreate(osThread(AutoModeTask), NULL);
   #endif
   /* USER CODE END RTOS_THREADS */
 
@@ -210,7 +206,7 @@ void calculateFunc(void const * argument)
 void RC_Ctrl(void const * argument)
 {
   /* USER CODE BEGIN RC_Ctrl */
-
+  HAL_UART_Receive_IT(&huart2, (uint8_t *)&Rx_Temp, 1);
   /* Infinite loop */
   for(;;)
   {

@@ -6,16 +6,16 @@
 #define cm
 #define frame -1//场地左右手坐标系切换
 auto_ctrlcenter dog_auto_ctrl[10]={
-    {.target.target_location={0.0f,0.0f,0.0f},.task_attr={.node=track_startpoint,.task_type=Tracking},.task_complete_flag=0},
-    {.target.target_location={0.0f,0.0f,0.0f},.task_attr={.node=track_startpoint,.task_type=Tracking},.task_complete_flag=0},
-    {.target.target_location={0.0f,0.0f,0.0f},.task_attr={.node=track_startpoint,.task_type=Tracking},.task_complete_flag=0},
-    {.target.target_location={0.0f,0.0f,0.0f},.task_attr={.node=track_startpoint,.task_type=Tracking},.task_complete_flag=0},
-    {.target.target_location={0.0f,0.0f,0.0f},.task_attr={.node=track_startpoint,.task_type=Tracking},.task_complete_flag=0},
-    {.target.target_location={0.0f,0.0f,0.0f},.task_attr={.node=track_startpoint,.task_type=Tracking},.task_complete_flag=0},
-    {.target.target_location={0.0f,0.0f,0.0f},.task_attr={.node=track_startpoint,.task_type=Tracking},.task_complete_flag=0},
-    {.target.target_location={0.0f,0.0f,0.0f},.task_attr={.node=track_startpoint,.task_type=Tracking},.task_complete_flag=0},
-    {.target.target_location={0.0f,0.0f,0.0f},.task_attr={.node=track_startpoint,.task_type=Tracking},.task_complete_flag=0},
-    {.target.target_location={0.0f,0.0f,0.0f},.task_attr={.node=track_startpoint,.task_type=Tracking},.task_complete_flag=0}
+    {.target.target_location={0.0f,0.0f,0.0f},.task_attr={.node=track_startpoint,.task_type=TRACK},.task_complete_flag=0},
+    {.target.target_location={0.0f,0.0f,0.0f},.task_attr={.node=track_startpoint,.task_type=TRACK},.task_complete_flag=0},
+    {.target.target_location={0.0f,0.0f,0.0f},.task_attr={.node=track_startpoint,.task_type=TRACK},.task_complete_flag=0},
+    {.target.target_location={0.0f,0.0f,0.0f},.task_attr={.node=track_startpoint,.task_type=TRACK},.task_complete_flag=0},
+    {.target.target_location={0.0f,0.0f,0.0f},.task_attr={.node=track_startpoint,.task_type=TRACK},.task_complete_flag=0},
+    {.target.target_location={0.0f,0.0f,0.0f},.task_attr={.node=track_startpoint,.task_type=TRACK},.task_complete_flag=0},
+    {.target.target_location={0.0f,0.0f,0.0f},.task_attr={.node=track_startpoint,.task_type=TRACK},.task_complete_flag=0},
+    {.target.target_location={0.0f,0.0f,0.0f},.task_attr={.node=track_startpoint,.task_type=TRACK},.task_complete_flag=0},
+    {.target.target_location={0.0f,0.0f,0.0f},.task_attr={.node=track_startpoint,.task_type=TRACK},.task_complete_flag=0},
+    {.target.target_location={0.0f,0.0f,0.0f},.task_attr={.node=track_startpoint,.task_type=TRACK},.task_complete_flag=0}
 };
 void AutoTaskUpdate(Dog *dog){
     if(dog->auto_ctrl.task_complete_flag==1){
@@ -81,10 +81,10 @@ void AutoAction(Dog *dog){
 };
 void AutoOffRoad(Dog *dog){
     AutoTaskUpdate(dog);
-    if(dog->auto_ctrl.task_attr.task_type==Tracking){
+    if(dog->auto_ctrl.task_attr.task_type==TRACK){
         AutoTracking(dog);
     }
-    else if(dog->auto_ctrl.task_attr.task_type==Action){
+    else if(dog->auto_ctrl.task_attr.task_type==ACTION){
         AutoAction(dog);
     }
 }

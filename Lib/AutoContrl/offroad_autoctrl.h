@@ -1,8 +1,8 @@
 #ifndef AUTOCTRL_H
 #define AUTOCTRL_H
 
-#define Tracking 0//行为属性
-#define Action 1
+#define TRACK 0//行为属性
+#define ACTION 1
 #include "stdint.h"
 typedef enum{//任务节点枚举
     track_startpoint=0 

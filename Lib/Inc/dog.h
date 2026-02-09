@@ -11,7 +11,6 @@
 
 #define RC_MODE      0
 #define AUTO_OFFROAD 1
-#define AUTO_TASK    2
 typedef enum leg_state_{//单腿状态枚举 每个动作的第一阶段状态必须为0
 	STAND_UP=0,
 	
@@ -19,9 +18,11 @@ typedef enum leg_state_{//单腿状态枚举 每个动作的第一阶段状态必须为0
 	KICK_BACK1,
 	STEP_FORE2,
 	KICK_BACK2,
+	STEP_FORE_REBACK,
+	KICK_BACK_REBACK,
 	
 	STEP_B1=0,	STEP_F1,	KICK_F1,	KICK_B1,
-	STEP_B2,	STEP_F2,	KICK_F2,	KICK_B2,
+	STEP_B2,	STEP_F2,	KICK_F2,	KICK_B2,STEP_F_REBACK,STEP_B_REBACK,KICK_F_REBACK,KICK_B_REBACK,
 	
 	LOWSTEP_FORE1=0,
 	LOWKICK_BACK1,

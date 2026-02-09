@@ -149,46 +149,51 @@ void Damping_mode(Dog *dog);
 void Jump_TurnRight(Dog *dog);
 
 void dogTaskCtrl(Dog *dog){
-	switch(dog->state){
-		case STAND_UP_:
-			standUP(dog);
+	if(dog->dog_mode==RC_MODE||dog->dog_mode==AUTO_OFFROAD&&dog->auto_ctrl.task_attr.task_type==TRACK){
+		switch(dog->state){
+			case STAND_UP_:
+				standUP(dog);
+				break;
+			case WALK_FORWARD:
+				walkForward(dog);
+				break;
+		case TURN_RIGHT:
+				Turn(dog);
+				break;
+		case TURN_LEFT:
+				Turn(dog);
+				break;
+		case LOWWALK_FORWARD:
+				for(uint8_t i=0;i<=3;i++){
+					dog->leg[i].bezier.pos.x=0;
+					dog->leg[i].bezier.pos.y=160.0f;
+				}
+				for(uint8_t i=0;i<=3;i++){
+					Pose_Inverse_Kinematics(&dog->leg[i]);
+				}
+				osDelay(3000);
+				LowWalkForward(dog);
+				break;
+			case JUMP_FORWARD:
+				JumpForward(dog);
+				break;
+			case INJUMP:
+				InJump(dog);
+				break;
+			case WALK_BACK:
+				WalkBack(dog);
+				break;
+			case DAMPING_MODE:
+				Damping_mode(dog);
+				break;
+			default :
+				standUP(dog);
 			break;
-		case WALK_FORWARD:
-			walkForward(dog);
-			break;
-	  case TURN_RIGHT:
-			Turn(dog);
-			break;
-	  case TURN_LEFT:
-			Turn(dog);
-			break;
-	  case LOWWALK_FORWARD:
-			for(uint8_t i=0;i<=3;i++){
-				dog->leg[i].bezier.pos.x=0;
-				dog->leg[i].bezier.pos.y=160.0f;
-			}
-			for(uint8_t i=0;i<=3;i++){
-				Pose_Inverse_Kinematics(&dog->leg[i]);
-			}
-			osDelay(3000);
-			LowWalkForward(dog);
-			break;
-		case JUMP_FORWARD:
-			JumpForward(dog);
-			break;
-		case INJUMP:
-			InJump(dog);
-			break;
-		case WALK_BACK:
-			WalkBack(dog);
-			break;
-		case DAMPING_MODE:
-			Damping_mode(dog);
-			break;
-		default :
-						standUP(dog);
-		break;
-	}  
+		} 
+	} 
+	else if(dog->dog_mode==AUTO_OFFROAD&&dog->auto_ctrl.task_attr.task_type==ACTION){
+
+	}
 }
 void standUP(Dog *dog){
 	static bezierPoint ctrl_point[4]={{0,190.53},{0,0},{0,0},{0,0}};
@@ -208,7 +213,7 @@ void standUP(Dog *dog){
 		}
 	};
 
-memcpy(&bezier_exp[0].ctrl_point,&ctrl_point,sizeof(bezier_exp[0].ctrl_point));
+	memcpy(&bezier_exp[0].ctrl_point,&ctrl_point,sizeof(bezier_exp[0].ctrl_point));
 	leg_Bezier_Free_Init(&dog->leg[0], STAND_UP,&bezier_exp[0]);
 	leg_Bezier_Free_Init(&dog->leg[1], STAND_UP,&bezier_exp[0]);
 	leg_Bezier_Free_Init(&dog->leg[2], STAND_UP,&bezier_exp[0]);
@@ -219,70 +224,84 @@ memcpy(&bezier_exp[0].ctrl_point,&ctrl_point,sizeof(bezier_exp[0].ctrl_point));
 }
 
 void walkForward(Dog *dog){
-	static const bezierPoint ctrl_point[4][4]={
+	static const bezierPoint ctrl_point[6][4]={
 		{{0 ,245.96f},{25.0f,150.0f},{50.0f,245.96f},{100,190.53f}},	//STEP_FORE1
 		{{0,245.96f},{-25.0f,270.0f},{-50.0f,245.96},{ 99,214}},		//KICK_BACK1
 		{{-50.0f,245.96f},{-25,130.0f},{25,130.0f},{50.0f,245.96f}},	//STEP_FORE2
 		{{50.0f,245.96f},{0,290.0f},{-50.0f,245.96f},{ 99,214}},			//KICK_BACK2
+
+		{{50.0f,245.96f},{25.0f,270.0f},{0,245.96f},{0,0}},//STEP_FORE_REBACK
+		{{-50.0f,245.96f},{-25.0f,150.0f},{0,245.96f},{0,0}}//KICK_BACK_REBACK
 	};
 	// 初始化所有控制点为 {0,0}.pos = {0.0f, 0.0f},.now_time = 0,.last_end_time = 0
-	static bezier_exp bezier_exp[4] = {
+	static bezier_exp bezier_exp[6] = {
 		{.T = 0.14f,.fre = 100.0f,.n = 2,.pid={.K_P=1.0f,.K_W=0.1f,.Pos=0,.W=0,.T=0},.t = 0.0f,.point_sum = 0,.flag = 0,.ctrl_point = { 0} ,.pos = {0.0f, 0.0f},.now_time = 0,.last_end_time = 0},
 		{.T = 0.14f,.fre = 100.0f,.n = 2,.pid={.K_P=1.0f,.K_W=0.1f,.Pos=0,.W=0,.T=0},.t = 0.0f,.point_sum = 0,.flag = 0,.ctrl_point = { 0 } ,.pos = {0.0f, 0.0f},.now_time = 0,.last_end_time = 0},
 		{.T = 0.14f,.fre = 100.0f,.n = 3,.pid={.K_P=1.0f,.K_W=0.1f,.Pos=0,.W=0,.T=0},.t = 0.0f,.point_sum = 0,.flag = 0,.ctrl_point = { 0} ,.pos = {0.0f, 0.0f},.now_time = 0,.last_end_time = 0},
 		{.T = 0.14f,.fre = 100.0f,.n = 2,.pid={.K_P=1.0f,.K_W=0.1f,.Pos=0,.W=0,.T=0},.t = 0.0f,.point_sum = 0,.flag = 0,.ctrl_point = {0 } ,.pos = {0.0f, 0.0f},.now_time = 0,.last_end_time = 0},
+		
+		{.T = 0.14f,.fre = 100.0f,.n = 2,.pid={.K_P=1.0f,.K_W=0.1f,.Pos=0,.W=0,.T=0},.t = 0.0f,.point_sum = 0,.flag = 0,.ctrl_point = {0 } ,.pos = {0.0f, 0.0f},.now_time = 0,.last_end_time = 0},
+		{.T = 0.14f,.fre = 100.0f,.n = 2,.pid={.K_P=1.0f,.K_W=0.1f,.Pos=0,.W=0,.T=0},.t = 0.0f,.point_sum = 0,.flag = 0,.ctrl_point = {0 } ,.pos = {0.0f, 0.0f},.now_time = 0,.last_end_time = 0},
 	};
-	for(uint8_t i=0;i<4;i++){
+	for(uint8_t i=0;i<6;i++){
 		memcpy(&bezier_exp[i].ctrl_point,&ctrl_point[i],sizeof(bezier_exp[i].ctrl_point));
 	}
-		//轮流初始化
-		leg_Bezier_Free_Init(&dog->leg[0],STEP_FORE1,&bezier_exp[STEP_FORE1]);
-		leg_Bezier_Free_Init(&dog->leg[2],STEP_FORE1,&bezier_exp[STEP_FORE1]);
-		leg_Bezier_Free_Init(&dog->leg[1],KICK_BACK1,&bezier_exp[KICK_BACK1]);
-		leg_Bezier_Free_Init(&dog->leg[3],KICK_BACK1,&bezier_exp[KICK_BACK1]);
-		while(dog->leg[0].bezier.flag==0||dog->leg[1].bezier.flag==0||dog->leg[2].bezier.flag==0||dog->leg[3].bezier.flag==0){//将当前轨迹走完
-			for(uint8_t i=0;i<=3;i++){
-				leg_Act_Bezier(&dog->leg[i]);
-			}
+	//轮流初始化
+	leg_Bezier_Free_Init(&dog->leg[0],STEP_FORE1,&bezier_exp[STEP_FORE1]);
+	leg_Bezier_Free_Init(&dog->leg[2],STEP_FORE1,&bezier_exp[STEP_FORE1]);
+	leg_Bezier_Free_Init(&dog->leg[1],KICK_BACK1,&bezier_exp[KICK_BACK1]);
+	leg_Bezier_Free_Init(&dog->leg[3],KICK_BACK1,&bezier_exp[KICK_BACK1]);
+	while(dog->leg[0].bezier.flag==0||dog->leg[1].bezier.flag==0||dog->leg[2].bezier.flag==0||dog->leg[3].bezier.flag==0){//将当前轨迹走完
+		for(uint8_t i=0;i<=3;i++){
+			leg_Act_Bezier(&dog->leg[i]);
 		}
-		osDelay(1);
+	}
+	osDelay(1);
 //			
 	while(dog->state==WALK_FORWARD){
 		leg_Bezier_Free_Init(&dog->leg[0],KICK_BACK2,&bezier_exp[KICK_BACK2]);
 		leg_Bezier_Free_Init(&dog->leg[2],KICK_BACK2,&bezier_exp[KICK_BACK2]);
 		leg_Bezier_Free_Init(&dog->leg[1],STEP_FORE2,&bezier_exp[STEP_FORE2]);
 		leg_Bezier_Free_Init(&dog->leg[3],STEP_FORE2,&bezier_exp[STEP_FORE2]);
-			while(dog->leg[0].bezier.flag==0||dog->leg[1].bezier.flag==0||dog->leg[2].bezier.flag==0||dog->leg[3].bezier.flag==0){
-				for(uint8_t i=0;i<=3;i++){
-					leg_Act_Bezier(&dog->leg[i]);
-				}
+		while(dog->leg[0].bezier.flag==0||dog->leg[1].bezier.flag==0||dog->leg[2].bezier.flag==0||dog->leg[3].bezier.flag==0){
+			for(uint8_t i=0;i<=3;i++){
+				leg_Act_Bezier(&dog->leg[i]);
 			}
-			
+		}
 		leg_Bezier_Free_Init(&dog->leg[0],STEP_FORE2,&bezier_exp[STEP_FORE2]);
 		leg_Bezier_Free_Init(&dog->leg[2],STEP_FORE2,&bezier_exp[STEP_FORE2]);
 		leg_Bezier_Free_Init(&dog->leg[1],KICK_BACK2,&bezier_exp[KICK_BACK2]);
 		leg_Bezier_Free_Init(&dog->leg[3],KICK_BACK2,&bezier_exp[KICK_BACK2]);
-			while(dog->leg[0].bezier.flag==0||dog->leg[1].bezier.flag==0||dog->leg[2].bezier.flag==0||dog->leg[3].bezier.flag==0){
-				for(uint8_t i=0;i<=3;i++){
-					leg_Act_Bezier(&dog->leg[i]);
-				}
+		while(dog->leg[0].bezier.flag==0||dog->leg[1].bezier.flag==0||dog->leg[2].bezier.flag==0||dog->leg[3].bezier.flag==0){
+			for(uint8_t i=0;i<=3;i++){
+				leg_Act_Bezier(&dog->leg[i]);
 			}
+		}
 		osDelay(1);
 	}
+	leg_Bezier_Free_Init(&dog->leg[0],STEP_FORE_REBACK,&bezier_exp[STEP_FORE_REBACK]);
+	leg_Bezier_Free_Init(&dog->leg[2],STEP_FORE_REBACK,&bezier_exp[STEP_FORE_REBACK]);
+	leg_Bezier_Free_Init(&dog->leg[1],KICK_BACK_REBACK,&bezier_exp[KICK_BACK_REBACK]);
+	leg_Bezier_Free_Init(&dog->leg[3],KICK_BACK_REBACK,&bezier_exp[KICK_BACK_REBACK]);
 }
 void Turn(Dog *dog){//动作分为两个阶段，起步阶段和行进阶段
-	static const bezierPoint ctrl_point[8][4]={
-	{{0 ,190.53f},{-25.0f,100.0f},{-25.0f,190.53f},{-100,190.53f}},	//STEP_B1
-	{{0 ,190.53f},{25,100.0f},{50,190.53f},{100,190.53f}},		//STEP_F1
-	{{0,190.53},{25.0f,200.0f},{50.0f,190.53},{ 99,214}},				//KICK_F1
-	{{0,190.53},{-25,200.0f},{-50,190.53},{ 99,214}},				//KICK_B1
-	{{50.0f,190.53f},{50.0f,100.0f},{-50.0f,100.0f},{-50.0f,190.53f}},		//STEP_B2
-	{{-50,190.53f},{-50,100.0f},{50,100.0f},{50,190.53f}},		//STEP_F2
-	{{-50.0f,190.53},{0,200.0f},{50.0f,190.53f},{ 99,214}},				//KICK_F2
-	{{50,190.53},{0,200.0f},{-50,190.53f},{ 99,214}},				//KICK_B2
+	static const bezierPoint ctrl_point[12][4]={
+		{{0 ,190.53f},{-25.0f,100.0f},{-25.0f,190.53f},{-100,190.53f}},	//STEP_B1
+		{{0 ,190.53f},{25,100.0f},{50,190.53f},{100,190.53f}},		//STEP_F1
+		{{0,190.53},{25.0f,200.0f},{50.0f,190.53},{ 99,214}},				//KICK_F1
+		{{0,190.53},{-25,200.0f},{-50,190.53},{ 99,214}},				//KICK_B1
+		{{50.0f,190.53f},{50.0f,100.0f},{-50.0f,100.0f},{-50.0f,190.53f}},		//STEP_B2
+		{{-50,190.53f},{-50,100.0f},{50,100.0f},{50,190.53f}},		//STEP_F2
+		{{-50.0f,190.53},{0,200.0f},{50.0f,190.53f},{ 99,214}},				//KICK_F2
+		{{50,190.53},{0,200.0f},{-50,190.53f},{ 99,214}},				//KICK_B2
+
+		{{50.0f,190.53f},{25.0f,200.0f},{0,190.53f},{0,0}},//STEP_F_REBACK
+		{{-50.0f,190.53f},{-25.0f,200.0f},{0,190.53f},{0,0}},//STEP_B_REBACK
+		{{50.0f,190.53f},{25.0f,100.0f},{0,190.53f},{0,0}},//KICK_F_REBACK
+		{{-50.0f,190.53f},{-25.0f,100.0f},{0,190.53f},{0,0}}//KICK_B_REBACK
 	};
 		// 初始化所有控制点为 {0,0}.pos = {0.0f, 0.0f},.now_time = 0,.last_end_time = 0
-	static bezier_exp bezier_exp[8] = {
+	static bezier_exp bezier_exp[12] = {
 		{.T = 0.1f,.fre = 100.0f,.n = 2,.pid={.K_P=0.3f,.K_W=0.01f,.Pos=0,.W=0,.T=0},.t = 0.0f,.point_sum = 0,.flag = 0,.ctrl_point = { 0} ,.pos = {0.0f, 0.0f},.now_time = 0,.last_end_time = 0},
 		{.T = 0.1f,.fre = 100.0f,.n = 2,.pid={.K_P=0.3f,.K_W=0.01f,.Pos=0,.W=0,.T=0},.t = 0.0f,.point_sum = 0,.flag = 0,.ctrl_point = { 0 } ,.pos = {0.0f, 0.0f},.now_time = 0,.last_end_time = 0},
 		{.T = 0.1f,.fre = 100.0f,.n = 2,.pid={.K_P=0.3f,.K_W=0.01f,.Pos=0,.W=0,.T=0},.t = 0.0f,.point_sum = 0,.flag = 0,.ctrl_point = { 0} ,.pos = {0.0f, 0.0f},.now_time = 0,.last_end_time = 0},
@@ -290,9 +309,14 @@ void Turn(Dog *dog){//动作分为两个阶段，起步阶段和行进阶段
 		{.T = 0.1f,.fre = 100.0f,.n = 3,.pid={.K_P=0.3f,.K_W=0.01f,.Pos=0,.W=0,.T=0},.t = 0.0f,.point_sum = 0,.flag = 0,.ctrl_point = { 0} ,.pos = {0.0f, 0.0f},.now_time = 0,.last_end_time = 0},
 		{.T = 0.1f,.fre = 100.0f,.n = 3,.pid={.K_P=0.3f,.K_W=0.01f,.Pos=0,.W=0,.T=0},.t = 0.0f,.point_sum = 0,.flag = 0,.ctrl_point = { 0 } ,.pos = {0.0f, 0.0f},.now_time = 0,.last_end_time = 0},
 		{.T = 0.1f,.fre = 100.0f,.n = 2,.pid={.K_P=0.3f,.K_W=0.01f,.Pos=0,.W=0,.T=0},.t = 0.0f,.point_sum = 0,.flag = 0,.ctrl_point = { 0} ,.pos = {0.0f, 0.0f},.now_time = 0,.last_end_time = 0},
+		
+		{.T = 0.1f,.fre = 100.0f,.n = 2,.pid={.K_P=0.3f,.K_W=0.01f,.Pos=0,.W=0,.T=0},.t = 0.0f,.point_sum = 0,.flag = 0,.ctrl_point = {0 } ,.pos = {0.0f, 0.0f},.now_time = 0,.last_end_time = 0},
+		{.T = 0.1f,.fre = 100.0f,.n = 2,.pid={.K_P=0.3f,.K_W=0.01f,.Pos=0,.W=0,.T=0},.t = 0.0f,.point_sum = 0,.flag = 0,.ctrl_point = {0 } ,.pos = {0.0f, 0.0f},.now_time = 0,.last_end_time = 0},
+		{.T = 0.1f,.fre = 100.0f,.n = 2,.pid={.K_P=0.3f,.K_W=0.01f,.Pos=0,.W=0,.T=0},.t = 0.0f,.point_sum = 0,.flag = 0,.ctrl_point = {0 } ,.pos = {0.0f, 0.0f},.now_time = 0,.last_end_time = 0},
 		{.T = 0.1f,.fre = 100.0f,.n = 2,.pid={.K_P=0.3f,.K_W=0.01f,.Pos=0,.W=0,.T=0},.t = 0.0f,.point_sum = 0,.flag = 0,.ctrl_point = {0 } ,.pos = {0.0f, 0.0f},.now_time = 0,.last_end_time = 0}
+
 	};
-	for(uint8_t i=0;i<8;i++){//重置控制点
+	for(uint8_t i=0;i<12;i++){//重置控制点
 		memcpy(&bezier_exp[i].ctrl_point,&ctrl_point[i],sizeof(bezier_exp[i].ctrl_point));
 	}
 
@@ -304,10 +328,10 @@ void Turn(Dog *dog){//动作分为两个阶段，起步阶段和行进阶段
 		leg_Bezier_Free_Init(&dog->leg[2],KICK_B1,&bezier_exp[KICK_B1]);
 		while(dog->leg[0].bezier.flag==0||dog->leg[1].bezier.flag==0||dog->leg[2].bezier.flag==0||dog->leg[3].bezier.flag==0){//将当前轨迹走完
 			for(uint8_t i=0;i<=3;i++){
-				leg_Act_Bezier(&dog->leg[i]);
-				osDelay(1);
+				leg_Act_Bezier(&dog->leg[i]);	
 			}
 		}
+		osDelay(1);
 		while(dog->state == TURN_RIGHT)
 		{
 			leg_Bezier_Free_Init(&dog->leg[1],KICK_B2,&bezier_exp[KICK_B2]);
@@ -319,7 +343,7 @@ void Turn(Dog *dog){//动作分为两个阶段，起步阶段和行进阶段
 				for(uint8_t i = 0; i <= 3; i++) {
 					leg_Act_Bezier(&dog->leg[i]);
 				}
-				osDelay(1);
+				
 			}
 			leg_Bezier_Free_Init(&dog->leg[1],STEP_F2,&bezier_exp[STEP_F2]);
 			leg_Bezier_Free_Init(&dog->leg[3],STEP_B2,&bezier_exp[STEP_B2]);
@@ -330,9 +354,14 @@ void Turn(Dog *dog){//动作分为两个阶段，起步阶段和行进阶段
 				for(uint8_t i = 0; i <= 3; i++) {
 					leg_Act_Bezier(&dog->leg[i]);
 				}
-				osDelay(1);
+				
 			}
+			osDelay(1);
 		}
+		leg_Bezier_Free_Init(&dog->leg[1],STEP_F_REBACK,&bezier_exp[STEP_F_REBACK]);
+		leg_Bezier_Free_Init(&dog->leg[3],STEP_B_REBACK,&bezier_exp[STEP_B_REBACK]);
+		leg_Bezier_Free_Init(&dog->leg[0],KICK_F_REBACK,&bezier_exp[KICK_F_REBACK]);
+		leg_Bezier_Free_Init(&dog->leg[2],KICK_B_REBACK,&bezier_exp[KICK_B_REBACK]);		
 	}
 	else if(dog->state==TURN_LEFT){
 		//轮流初始化
@@ -343,9 +372,10 @@ void Turn(Dog *dog){//动作分为两个阶段，起步阶段和行进阶段
 		while(dog->leg[0].bezier.flag==0||dog->leg[1].bezier.flag==0||dog->leg[2].bezier.flag==0||dog->leg[3].bezier.flag==0){//将当前轨迹走完
 			for(uint8_t i=0;i<=3;i++){
 				leg_Act_Bezier(&dog->leg[i]);
-				osDelay(1);
+				
 			}
 		}
+		osDelay(1);
 		while(dog->state == TURN_LEFT)
 		{
 			leg_Bezier_Free_Init(&dog->leg[1],KICK_F2,&bezier_exp[KICK_F2]);
@@ -357,7 +387,6 @@ void Turn(Dog *dog){//动作分为两个阶段，起步阶段和行进阶段
 				for(uint8_t i = 0; i <= 3; i++) {
 					leg_Act_Bezier(&dog->leg[i]);
 				}
-				osDelay(1);
 			}
 			leg_Bezier_Free_Init(&dog->leg[1],STEP_B2,&bezier_exp[STEP_B2]);
 			leg_Bezier_Free_Init(&dog->leg[3],STEP_F2,&bezier_exp[STEP_F2]);
@@ -368,9 +397,13 @@ void Turn(Dog *dog){//动作分为两个阶段，起步阶段和行进阶段
 				for(uint8_t i = 0; i <= 3; i++) {
 					leg_Act_Bezier(&dog->leg[i]);
 				}
-				osDelay(1);
 			}
+			osDelay(1);
 		}
+		leg_Bezier_Free_Init(&dog->leg[1],STEP_B_REBACK,&bezier_exp[STEP_B_REBACK]);
+		leg_Bezier_Free_Init(&dog->leg[3],STEP_F_REBACK,&bezier_exp[STEP_F_REBACK]);
+		leg_Bezier_Free_Init(&dog->leg[0],KICK_B_REBACK,&bezier_exp[KICK_B_REBACK]);
+		leg_Bezier_Free_Init(&dog->leg[2],KICK_F_REBACK,&bezier_exp[KICK_F_REBACK]);
 	}
 }
 void LowWalkForward(Dog *dog){
