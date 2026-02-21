@@ -1,0 +1,14 @@
+paralleldog_f429_test1\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/stream_buffer.c
+paralleldog_f429_test1\stream_buffer.o: E:\KEIL5\core\ARM\ARMCC\Bin\..\include\stdint.h
+paralleldog_f429_test1\stream_buffer.o: E:\KEIL5\core\ARM\ARMCC\Bin\..\include\string.h
+paralleldog_f429_test1\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
+paralleldog_f429_test1\stream_buffer.o: E:\KEIL5\core\ARM\ARMCC\Bin\..\include\stddef.h
+paralleldog_f429_test1\stream_buffer.o: ../Core/Inc/FreeRTOSConfig.h
+paralleldog_f429_test1\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h
+paralleldog_f429_test1\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h
+paralleldog_f429_test1\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/deprecated_definitions.h
+paralleldog_f429_test1\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F/portmacro.h
+paralleldog_f429_test1\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/mpu_wrappers.h
+paralleldog_f429_test1\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/task.h
+paralleldog_f429_test1\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/list.h
+paralleldog_f429_test1\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/stream_buffer.h
