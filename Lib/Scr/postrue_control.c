@@ -10,6 +10,26 @@
 #include "GO_ctrl.h"
 #include "simple_matrix.h"
 #define pi 3.141592f
+#define VMC_FOOT_FORCE_LIMIT 300.0f
+#define VMC_TORQUE_LIMIT 12.0f
+
+volatile uint32_t g_vmc_force_sat_count[4] = {0};
+volatile uint32_t g_vmc_torque_sat_count[4] = {0};
+
+static float vmc_clamp(float value, float limit, uint8_t *is_sat)
+{
+	if (value > limit)
+	{
+		*is_sat = 1;
+		return limit;
+	}
+	if (value < -limit)
+	{
+		*is_sat = 1;
+		return -limit;
+	}
+	return value;
+}
 void Dog_ParaInit(Dog *dog)
 {
 	memset(&dog->leg, 0, sizeof(Leg) * 4);
@@ -126,9 +146,9 @@ static void leg_Calc_Jacobian(const Leg *leg, float Jacobian[2][2])
 {
 	float sigma[6];
 	sigma[0] = sqrtf(cosf(leg->theta_fore - leg->theta_back) + 7.0f);
-	sigma[1] = 1 / 2 * leg->theta_fore - 3 / 2 * leg->theta_back;
-	sigma[2] = 3 / 2 * leg->theta_fore - 1 / 2 * leg->theta_back;
-	sigma[5] = 1 / 2 * (leg->theta_fore + leg->theta_back);
+	sigma[1] = 0.5f * leg->theta_fore - 1.5f * leg->theta_back;
+	sigma[2] = 1.5f * leg->theta_fore - 0.5f * leg->theta_back;
+	sigma[5] = 0.5f * (leg->theta_fore + leg->theta_back);
 	sigma[3] = (385 * sqrtf(2.0f) * cosf(sigma[5])) / 2;
 	sigma[4] = 385 * sqrtf(2.0f) * sinf(sigma[5]);
 	Jacobian[0][0] = -(110 * sinf(leg->theta_fore) * sigma[0] + sigma[4] + 55 * sqrtf(2.0f) * sinf(sigma[2])) / (2 * sigma[0]);
@@ -143,7 +163,13 @@ void vmc_Leg_MotorCtrl(Leg *leg) // 根据当前状态误差计算足端虚拟�
 	float Jacobian_trans[2][2];
 	float angle_Vel[2];
 	float Torque[2];
+	float torque_fore;
+	float torque_back;
+	uint8_t force_sat;
+	uint8_t torque_sat;
+	uint8_t leg_idx;
 	matrix_t F, J, J_trans, T, angleVel, f_Vel;
+	leg_idx = (leg->id >= 1 && leg->id <= 4) ? (uint8_t)(leg->id - 1) : 0;
 	// 收发一次数据更新电机状态
 	GO_TorqueMode_Ctrl(&(leg->motor_ctrl_linkf), 1);
 	GO_TorqueMode_Ctrl(&(leg->motor_ctrl_linkb), 1);
@@ -166,19 +192,38 @@ void vmc_Leg_MotorCtrl(Leg *leg) // 根据当前状态误差计算足端虚拟�
 	err_y = leg->bezier.pos.y - leg->y;
 	err_vx = leg->bezier.exp_fvel[0] - leg->fvel[0];
 	err_vy = leg->bezier.exp_fvel[1] - leg->fvel[1];
-	leg->F[0] = leg->F[0] + leg->bezier.pid.K_P * err_x + leg->bezier.pid.K_W * err_vx;
-	leg->F[1] = leg->F[1] + leg->bezier.pid.K_P * err_y + leg->bezier.pid.K_W * err_vy;
+	leg->F[0] =leg->bezier.pid.K_P * err_x + leg->bezier.pid.K_W * err_vx;
+	leg->F[1] =leg->bezier.pid.K_P * err_y + leg->bezier.pid.K_W * err_vy;
+	force_sat = 0;
+	leg->F[0] = vmc_clamp(leg->F[0], VMC_FOOT_FORCE_LIMIT, &force_sat);
+	leg->F[1] = vmc_clamp(leg->F[1], VMC_FOOT_FORCE_LIMIT, &force_sat);
+	if (force_sat)
+	{
+		g_vmc_force_sat_count[leg_idx]++;
+	}
 	matrix_wrap(&F, 2, 1, leg->F);
 	matrix_mul(&J_trans, &F, &T);
+	torque_sat = 0;
 	if (leg->id == 1 || leg->id == 3)
 	{
-		leg->motor_ctrl_linkf.pid.T = T.data[0];
-		leg->motor_ctrl_linkb.pid.T = -T.data[1];
+		torque_fore = T.data[0];
+		torque_back = -T.data[1];
 	}
 	else if (leg->id == 2 || leg->id == 4)
 	{
-		leg->motor_ctrl_linkf.pid.T = -T.data[0];
-		leg->motor_ctrl_linkb.pid.T = T.data[1];
+		torque_fore = -T.data[0];
+		torque_back = T.data[1];
+	}
+	else
+	{
+		torque_fore = 0.0f;
+		torque_back = 0.0f;
+	}
+	leg->motor_ctrl_linkf.pid.T = vmc_clamp(torque_fore, VMC_TORQUE_LIMIT, &torque_sat);
+	leg->motor_ctrl_linkb.pid.T = vmc_clamp(torque_back, VMC_TORQUE_LIMIT, &torque_sat);
+	if (torque_sat)
+	{
+		g_vmc_torque_sat_count[leg_idx]++;
 	}
 	// 将更新后的电机扭矩发送给电机
 	GO_TorqueMode_Ctrl(&(leg->motor_ctrl_linkf), 1);
@@ -206,7 +251,7 @@ void leg_BezierTargetPos_Update(Leg *leg)
 	leg->bezier.now_time = osKernelSysTick();
 	if (leg->bezier.point_sum < leg->bezier.T * leg->bezier.fre && (leg->bezier.now_time >= (leg->bezier.last_end_time + (uint32_t)(1000 / leg->bezier.fre))))
 	{
-		leg->bezier.pos = bezierCurve(&leg->bezier.ctrl_point, leg->bezier.n, leg->bezier.t); // 更新pos
+		leg->bezier.pos = bezierCurve((const bezierPoint (*)[4])&leg->bezier.ctrl_point, leg->bezier.n, leg->bezier.t); // 更新pos
 		leg->bezier.t += 1 / (leg->bezier.T * leg->bezier.fre);								  // 更新比例系数
 		if (leg->bezier.t > 1)
 		{ // 限定比例系数范围
