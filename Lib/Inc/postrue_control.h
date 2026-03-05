@@ -6,7 +6,6 @@
 #define POSTRUE_CONTROL_H
 #include "dog.h"
 void Dog_ParaInit(Dog *dog);
-void Pose_Inverse_Kinematics(Leg *leg);
 void leg_Act_Bezier_init(Leg *leg,leg_state state);
 void leg_Act_Bezier(Leg *leg);
 void motor_Ctrl(Leg (*leg_prt)[4]);

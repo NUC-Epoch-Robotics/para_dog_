@@ -159,9 +159,9 @@ void MX_FREERTOS_Init(void) {
 void StartDefaultTask(void const * argument)
 {
   /* init code for USB_DEVICE */
-  MX_USB_DEVICE_Init();
+  MX_USB_DEVICE_Init();//上位机通信
   /* USER CODE BEGIN StartDefaultTask */
-	hwt605_Init();
+	hwt605_Init();//IMU初始化
 //	HAL_UART_Receive_IT(&huart2, (uint8_t *)&Rx_Temp, 1);
   /* Infinite loop */
   for(;;)
@@ -210,7 +210,7 @@ void RC_Ctrl(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    rc_remote_ctrl(&dog);
+    rc_remote_ctrl(&dog);//根据遥控指令更改狗状态
     osDelay(1);
   }
   /* USER CODE END RC_Ctrl */
