@@ -6,8 +6,8 @@
 #include "stdint.h"
 typedef struct
 {
-    float x;
-    float y;
+    float x;//mm
+    float y;//mm
 }bezierPoint;
 
 typedef union {

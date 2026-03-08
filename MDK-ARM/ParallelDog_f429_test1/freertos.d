@@ -73,8 +73,7 @@ paralleldog_f429_test1\freertos.o: ../Middlewares/ST/STM32_USB_Device_Library/Co
 paralleldog_f429_test1\freertos.o: ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h
 paralleldog_f429_test1\freertos.o: ../Core/Inc/hwt605.h
 paralleldog_f429_test1\freertos.o: ../Core/Inc/can.h
-paralleldog_f429_test1\freertos.o: ..\Lib\Kalerman\imu_kalman.h
-paralleldog_f429_test1\freertos.o: ..\Lib\SimpleMatrix\simple_matrix.h
+paralleldog_f429_test1\freertos.o: ../Lib/Kalerman/imu_kalman.h
+paralleldog_f429_test1\freertos.o: ../Lib/SimpleMatrix/simple_matrix.h
 paralleldog_f429_test1\freertos.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stdbool.h
 paralleldog_f429_test1\freertos.o: ../Radar/ReadData.h 
-paralleldog_f429_test1\freertos.o: ../USB_DEVICE/App/usb_device.h

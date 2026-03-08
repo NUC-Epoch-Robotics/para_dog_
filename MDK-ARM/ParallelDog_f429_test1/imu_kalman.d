@@ -1,6 +1,6 @@
 paralleldog_f429_test1\imu_kalman.o: ..\Lib\Kalerman\imu_kalman.c
 paralleldog_f429_test1\imu_kalman.o: ..\Lib\Kalerman\imu_kalman.h
-paralleldog_f429_test1\imu_kalman.o: ..\Lib\SimpleMatrix\simple_matrix.h
+paralleldog_f429_test1\imu_kalman.o: ../Lib/SimpleMatrix/simple_matrix.h
 paralleldog_f429_test1\imu_kalman.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stddef.h
 paralleldog_f429_test1\imu_kalman.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stdbool.h
 paralleldog_f429_test1\imu_kalman.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stdint.h

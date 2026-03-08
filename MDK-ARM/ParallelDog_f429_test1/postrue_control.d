@@ -60,3 +60,5 @@ paralleldog_f429_test1\postrue_control.o: ../Middlewares/Third_Party/FreeRTOS/So
 paralleldog_f429_test1\postrue_control.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h
 paralleldog_f429_test1\postrue_control.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h
 paralleldog_f429_test1\postrue_control.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h
+paralleldog_f429_test1\postrue_control.o: ../Lib/SimpleMatrix/simple_matrix.h
+paralleldog_f429_test1\postrue_control.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stdbool.h

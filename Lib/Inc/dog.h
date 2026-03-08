@@ -56,21 +56,21 @@ typedef struct act_bezier_xpect{
 	uint8_t flag;//解算完成标志0/1
 	bezierPoint  ctrl_point[4];
 	bezierPoint pos;
-	float exp_fvel[2];//x,y
-	uint32_t now_time;
+	float exp_fvel[2];//x,y mm/s
+	uint32_t now_time;//ms
 	uint32_t last_end_time;
 }bezier_exp;
 
 typedef struct Leg_para{//单腿参数与对应电机参数结构体
     uint8_t id;
-    float x;//
-    float y;
+    float x;//mm
+    float y;//mm
 	float fvel[2];//足端x,y速度
     float L1;//大腿长mm
-    float L2;//小腿长
+    float L2;//小腿长mm
     float theta_fore;//后侧分腿角度，相对于x轴正向旋转总角度
     float theta_back;//前侧分腿角度
-	float F[2];//足端虚拟力
+	float Fxy[2];//足端虚拟力
     float A;
 	leg_state state;
     GO motor_ctrl_linkf;

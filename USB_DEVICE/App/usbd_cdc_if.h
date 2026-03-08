@@ -112,6 +112,7 @@ uint8_t CDC_Transmit_FS(uint8_t* Buf, uint16_t Len);
 uint16_t VCP_Read(uint8_t *buf,uint16_t max_len);
 void VCP_FlushRx(void);
 uint16_t VCP_GetRxCount(void);
+
 /* USER CODE END EXPORTED_FUNCTIONS */
 
 /**

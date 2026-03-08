@@ -7,25 +7,35 @@
 
 
 // 计算组合数 C(n, k)
-float binomial_coefficient(uint8_t n, uint8_t k) {
-    double result1 = 1.0;
-    for (int i = 1; i <= k; ++i) { 
-        result1 *= (n - i + 1) / (float)i;
-    }
-    return result1;
+float binomial_coefficient(uint8_t n, uint8_t k)
+{
+	double result = 1.0;
+	for (uint8_t i = 1; i <= k; ++i)
+	{
+		result *= (n - i + 1) / (float)i;
+	}
+	return (float)result;
 }
 bezierPoint bezierCurve(bezierPoint const (*node)[4],uint8_t n,float t)
 {
 	if(n>3){
 		n=3;
 	}
-	bezierPoint result;
+    if (t < 0.0f)
+    {
+        t = 0.0f;
+    }
+    else if (t > 1.0f)
+    {
+        t = 1.0f;
+    }
+    bezierPoint result = {0.0f, 0.0f};
 	float bino=0;
 	float term=0;
     for(uint8_t k=0;k<=n;k++)
     {
         bino = binomial_coefficient(n,k);
-		term = bino*pow(t,k)*pow(1-t,n-k);
+        term = bino * powf(t, k) * powf(1.0f - t, n - k);
         result.x  += node[0][k].x*term;
         result.y  += node[0][k]. y*term;
     }

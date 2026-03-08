@@ -9,6 +9,8 @@
 typedef struct pid_para {
     float K_P;
     float K_W;
+    float K_I;  
+    float xyPosIntegral[2];
     float Pos;
     float W;
     float T;

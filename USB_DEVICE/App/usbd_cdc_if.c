@@ -22,7 +22,7 @@
 #include "usbd_cdc_if.h"
 
 /* USER CODE BEGIN INCLUDE */
-
+#include "ReadData.h"
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -31,6 +31,7 @@
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
+extern vcp_message_t msg;
 #define RING_BUFFER_SIZE 512
  uint8_t RingBuffer[RING_BUFFER_SIZE]={0};
 static volatile uint16_t WriteIndex=0;//
@@ -65,6 +66,10 @@ static volatile uint16_t ReadIndex=0;//
   */
 
 /* USER CODE BEGIN PRIVATE_DEFINES */
+#define FRAME_HEADER_1      0xAA
+#define FRAME_HEADER_2      0x55
+#define FRAME_TOTAL_LENGTH  10 // AA 55 + 4字节x + 4字节y
+#define TMP_BUF_SIZE        64
 /* USER CODE END PRIVATE_DEFINES */
 
 /**
@@ -131,7 +136,7 @@ static int8_t CDC_Receive_FS(uint8_t* pbuf, uint32_t *Len);
 static int8_t CDC_TransmitCplt_FS(uint8_t *pbuf, uint32_t *Len, uint8_t epnum);
 
 /* USER CODE BEGIN PRIVATE_FUNCTIONS_DECLARATION */
-
+static void vcp_ExtractMessage(const uint8_t *frame_buf, vcp_message_t *msg);
 /* USER CODE END PRIVATE_FUNCTIONS_DECLARATION */
 
 /**
@@ -266,28 +271,31 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
 static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 {
   /* USER CODE BEGIN 6 */
-	uint32_t len=*Len;
-	uint32_t free_space;
-	
-	if(WriteIndex>=ReadIndex){//
-		free_space=RING_BUFFER_SIZE-(WriteIndex-ReadIndex)-1;
-	}
-	else{
-		free_space=ReadIndex-WriteIndex-1;
-	}
-	if(len>free_space){
-		//
-		goto rearm;
-	}
-	
-	for(uint32_t i=0;i<len;i++){
-		RingBuffer[WriteIndex]=Buf[i];
-		
-		WriteIndex=(WriteIndex + 1) & (RING_BUFFER_SIZE-1);//
-	}
-	rearm:
+  vcp_ExtractMessage(Buf,&msg);
   USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &UserRxBufferFS[0]);
   USBD_CDC_ReceivePacket(&hUsbDeviceFS);
+	// uint32_t len=*Len;
+	// uint32_t free_space;
+	
+	// if(WriteIndex>=ReadIndex){//
+	// 	free_space=RING_BUFFER_SIZE-(WriteIndex-ReadIndex)-1;
+	// }
+	// else{
+	// 	free_space=ReadIndex-WriteIndex-1;
+	// }
+	// if(len>free_space){
+	// 	//
+	// 	goto rearm;
+	// }
+	
+	// for(uint32_t i=0;i<len;i++){
+	// 	RingBuffer[WriteIndex]=Buf[i];
+		
+	// 	WriteIndex=(WriteIndex + 1) & (RING_BUFFER_SIZE-1);//
+	// }
+	// rearm:
+  // USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &UserRxBufferFS[0]);
+  // USBD_CDC_ReceivePacket(&hUsbDeviceFS);
   return (USBD_OK);
   /* USER CODE END 6 */
 }
@@ -380,6 +388,15 @@ uint16_t VCP_Read(uint8_t *buf,uint16_t max_len){
 void VCP_FlushRx(void)
 {
     ReadIndex = WriteIndex; // ��������δ������
+}
+
+static void vcp_ExtractMessage(const uint8_t *frame_buf, vcp_message_t *msg) {
+    if (frame_buf[0] == FRAME_HEADER_1 && frame_buf[1] == FRAME_HEADER_2) {
+        uint32_t x_uint = ((uint32_t)frame_buf[5] << 24) | ((uint32_t)frame_buf[4] << 16) | ((uint32_t)frame_buf[3] << 8) | (uint32_t)frame_buf[2];
+        uint32_t y_uint = ((uint32_t)frame_buf[9] << 24) | ((uint32_t)frame_buf[8] << 16) | ((uint32_t)frame_buf[7] << 8) | (uint32_t)frame_buf[6];
+        memcpy(&msg->xdata, &x_uint, 4);
+        memcpy(&msg->ydata, &y_uint, 4);
+    }
 }
 /* USER CODE END PRIVATE_FUNCTIONS_IMPLEMENTATION */
 
