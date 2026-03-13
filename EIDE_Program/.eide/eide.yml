@@ -103,6 +103,11 @@ virtualFolder:
             - path: ../Lib/Kalerman/imu_kalman.h
             - path: ../Lib/Kalerman/imu_kalman.c
           folders: []
+        - name: Vofa
+          files:
+            - path: ../Lib/Vofa/vofa_Debug.c
+            - path: ../Lib/Vofa/vofa_Debug.h
+          folders: []
     - name: Middlewares
       files: []
       folders:
@@ -169,6 +174,7 @@ targets:
         - ../Lib/AutoContrl
         - ../Radar
         - ../Lib/SimpleMatrix
+        - ../Lib/Vofa
       libList: []
     excludeList: []
     toolchain: AC5

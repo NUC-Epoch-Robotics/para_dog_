@@ -61,6 +61,7 @@
 "paralleldog_f429_test1\offroad_autoctrl.o"
 "paralleldog_f429_test1\simple_matrix.o"
 "paralleldog_f429_test1\imu_kalman.o"
+"paralleldog_f429_test1\vofa_debug.o"
 --library_type=microlib --strict --scatter "ParallelDog_f429_test1\ParallelDog_f429_test1.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

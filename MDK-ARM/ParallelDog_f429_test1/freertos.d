@@ -77,3 +77,4 @@ paralleldog_f429_test1\freertos.o: ../Lib/Kalerman/imu_kalman.h
 paralleldog_f429_test1\freertos.o: ../Lib/SimpleMatrix/simple_matrix.h
 paralleldog_f429_test1\freertos.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stdbool.h
 paralleldog_f429_test1\freertos.o: ../Radar/ReadData.h 
+paralleldog_f429_test1\freertos.o: ../Lib/Inc/vofa_Debug.h

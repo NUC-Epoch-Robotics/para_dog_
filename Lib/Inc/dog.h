@@ -46,17 +46,21 @@ typedef enum leg_state_{//单腿状态枚举 每个动作的第一阶段状态必须为0
 	DAMPING=0
 }leg_state;
 
-typedef struct act_bezier_xpect{
+typedef struct curveConfig{
 	float T;  //动作时间间隔
 	float fre;//取样频率	
 	uint8_t n;//曲线阶数
-	pid_ pid;
-	float t;//曲线比例系数
-	uint8_t point_sum;
-	uint8_t flag;//解算完成标志0/1
 	bezierPoint  ctrl_point[4];
-	bezierPoint pos;
+}curveConfig;
+
+typedef struct act_bezier_xpect{
+	curveConfig config;
+	pid_ pid[2];
+	uint8_t flag;//解算完成标志0/1
+	bezierPoint exp_pos;//x,y坐标
 	float exp_fvel[2];//x,y mm/s
+	float t;//曲线比例系数
+	uint8_t point_sum;//已经计算的点数量
 	uint32_t now_time;//ms
 	uint32_t last_end_time;
 }bezier_exp;
@@ -65,13 +69,13 @@ typedef struct Leg_para{//单腿参数与对应电机参数结构体
     uint8_t id;
     float x;//mm
     float y;//mm
+	float phi;//中轴线角度
 	float fvel[2];//足端x,y速度
     float L1;//大腿长mm
     float L2;//小腿长mm
     float theta_fore;//后侧分腿角度，相对于x轴正向旋转总角度
     float theta_back;//前侧分腿角度
 	float Fxy[2];//足端虚拟力
-    float A;
 	leg_state state;
     GO motor_ctrl_linkf;
     GO motor_ctrl_linkb;

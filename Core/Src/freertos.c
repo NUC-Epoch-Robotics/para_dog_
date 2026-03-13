@@ -38,6 +38,7 @@
 #include "hwt605.h"
 #include "imu_kalman.h"
 #include "ReadData.h "
+#include "vofa_Debug.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -59,7 +60,7 @@
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
 Dog dog;
-uint8_t Rx_Temp = 0;
+uint8_t Rx_Temp[6]= {0};
 QueueHandle_t leg1_pidHandle;
 extern wit_t hwt_angle;
 static imu_kalman_t g_imu_kf;
@@ -68,6 +69,7 @@ CAN_RxHeaderTypeDef RxHeader;
 osThreadId AutoModeTaskHandle;
 osThreadId CalculateTaskHandle;
 osThreadId RemoteContrlTaskHandle;
+extern float vofa_data;
 /* USER CODE END Variables */
 osThreadId defaultTaskHandle;
 
@@ -162,11 +164,11 @@ void StartDefaultTask(void const * argument)
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN StartDefaultTask */
   hwt605_Init(); // IMU初始化
-  //	HAL_UART_Receive_IT(&huart2, (uint8_t *)&Rx_Temp, 1);
+	HAL_UART_Receive_IT(&huart2, &Rx_Temp[0], 6);
   /* Infinite loop */
   for (;;)
   {
-    //      printf("1.38,1.23\n");
+  printf("%f\n",vofa_data);
     //    HAL_UART_Transmit(&huart2,&d,sizeof(d),100);
     //  VCP_ReadTask();
     osDelay(100);
@@ -207,7 +209,7 @@ void calculateFunc(void const *argument)
 void RC_Ctrl(void const *argument)
 {
   /* USER CODE BEGIN RC_Ctrl */
-  HAL_UART_Receive_IT(&huart2, (uint8_t *)&Rx_Temp, 1);
+  
   /* Infinite loop */
   for (;;)
   {
@@ -240,8 +242,19 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
   if (huart == &huart2)
   {
-    SBUS_Reveive(Rx_Temp);
-    HAL_UART_Receive_IT(&huart2, (uint8_t *)&Rx_Temp, 1);
+    vofa_GetData(&Rx_Temp[0]);
+    HAL_UART_Receive_IT(&huart2, &Rx_Temp[0], 6);
+  }
+}
+
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
+{
+  if (huart == &huart2)
+  {
+    __HAL_UART_CLEAR_OREFLAG(huart);
+    __HAL_UART_CLEAR_FEFLAG(huart);
+    __HAL_UART_CLEAR_NEFLAG(huart);
+    HAL_UART_Receive_IT(&huart2, &Rx_Temp[0], 6);
   }
 }
 /* USER CODE END Application */
