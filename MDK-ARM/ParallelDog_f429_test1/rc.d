@@ -41,6 +41,3 @@ paralleldog_f429_test1\rc.o: ../Lib/Inc/motor_control.h
 paralleldog_f429_test1\rc.o: ../Core/Inc/main.h
 paralleldog_f429_test1\rc.o: ../Lib/Inc/ris_protocol.h
 paralleldog_f429_test1\rc.o: ../Lib/Inc/curve.h
-paralleldog_f429_test1\rc.o: ../Lib/AutoContrl/offroad_autoctrl.h
-paralleldog_f429_test1\rc.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\string.h
-paralleldog_f429_test1\rc.o: ../Lib/Inc/bsp_sbus.h

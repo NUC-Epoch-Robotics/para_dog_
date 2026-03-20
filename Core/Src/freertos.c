@@ -60,7 +60,7 @@
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
 Dog dog;
-uint8_t Rx_Temp[6]= {0};
+uint8_t Rx_Temp[10] = {0};
 QueueHandle_t leg1_pidHandle;
 extern wit_t hwt_angle;
 static imu_kalman_t g_imu_kf;
@@ -69,7 +69,8 @@ CAN_RxHeaderTypeDef RxHeader;
 osThreadId AutoModeTaskHandle;
 osThreadId CalculateTaskHandle;
 osThreadId RemoteContrlTaskHandle;
-extern float vofa_data;
+extern float vofa_data[10];
+float state_cmd = 0.0f;
 /* USER CODE END Variables */
 osThreadId defaultTaskHandle;
 
@@ -80,13 +81,13 @@ void calculateFunc(void const *argument);
 void RC_Ctrl(void const *argument);
 /* USER CODE END FunctionPrototypes */
 
-void StartDefaultTask(void const * argument);
+void StartDefaultTask(void const *argument);
 
 extern void MX_USB_DEVICE_Init(void);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
 /* GetIdleTaskMemory prototype (linked to static allocation support) */
-void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize );
+void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize);
 
 /* USER CODE BEGIN GET_IDLE_TASK_MEMORY */
 static StaticTask_t xIdleTaskTCBBuffer;
@@ -102,11 +103,12 @@ void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer, StackTyp
 /* USER CODE END GET_IDLE_TASK_MEMORY */
 
 /**
-  * @brief  FreeRTOS initialization
-  * @param  None
-  * @retval None
-  */
-void MX_FREERTOS_Init(void) {
+ * @brief  FreeRTOS initialization
+ * @param  None
+ * @retval None
+ */
+void MX_FREERTOS_Init(void)
+{
   /* USER CODE BEGIN Init */
 
   /* USER CODE END Init */
@@ -135,7 +137,7 @@ void MX_FREERTOS_Init(void) {
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
-  osThreadDef(CalculateTask, calculateFunc, osPriorityNormal, 0, 512);
+  osThreadDef(CalculateTask, calculateFunc, osPriorityNormal, 0, 1024);
   CalculateTaskHandle = osThreadCreate(osThread(CalculateTask), NULL);
 
 #if DOG_SWITCH == RC_MODE
@@ -148,7 +150,6 @@ void MX_FREERTOS_Init(void) {
   AutoModeTaskHandle = osThreadCreate(osThread(AutoModeTask), NULL);
 #endif
   /* USER CODE END RTOS_THREADS */
-
 }
 
 /* USER CODE BEGIN Header_StartDefaultTask */
@@ -158,18 +159,18 @@ void MX_FREERTOS_Init(void) {
  * @retval None
  */
 /* USER CODE END Header_StartDefaultTask */
-void StartDefaultTask(void const * argument)
+void StartDefaultTask(void const *argument)
 {
   /* init code for USB_DEVICE */
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN StartDefaultTask */
   hwt605_Init(); // IMU初始化
-	HAL_UART_Receive_IT(&huart2, &Rx_Temp[0], 6);
+  HAL_UART_Receive_IT(&huart2, &Rx_Temp[0], 6);
   /* Infinite loop */
   for (;;)
   {
-  printf("%f\n",vofa_data);
-    //    HAL_UART_Transmit(&huart2,&d,sizeof(d),100);
+    printf("%f\n", vofa_data[0]);
+//       HAL_UART_Transmit(&huart2,&d,sizeof(d),100);
     //  VCP_ReadTask();
     osDelay(100);
   }
@@ -209,11 +210,23 @@ void calculateFunc(void const *argument)
 void RC_Ctrl(void const *argument)
 {
   /* USER CODE BEGIN RC_Ctrl */
-  
+
   /* Infinite loop */
   for (;;)
   {
-    rc_remote_ctrl(&dog); // 根据遥控指令更改狗状态
+
+    vofa_data_write(1, &state_cmd);
+    int32_t state_cmd_i = (int32_t)(state_cmd + ((state_cmd >= 0.0f) ? 0.5f : -0.5f));
+    if (state_cmd_i < (int32_t)STAND_UP_)
+    {
+      state_cmd_i = (int32_t)STAND_UP_;
+    }
+    else if (state_cmd_i > (int32_t)DAMPING_MODE)
+    {
+      state_cmd_i = (int32_t)DAMPING_MODE;
+    }
+    dog.state = (dog_state)state_cmd_i;
+//        rc_remote_ctrl(&dog); // 根据遥控指令更改狗状态
     osDelay(1);
   }
   /* USER CODE END RC_Ctrl */
@@ -243,6 +256,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
   if (huart == &huart2)
   {
     vofa_GetData(&Rx_Temp[0]);
+//      SBUS_Reveive(Rx_Temp[0]);
     HAL_UART_Receive_IT(&huart2, &Rx_Temp[0], 6);
   }
 }

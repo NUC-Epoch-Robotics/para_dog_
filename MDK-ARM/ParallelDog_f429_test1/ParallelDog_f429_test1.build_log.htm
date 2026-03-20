@@ -22,16 +22,32 @@ Dialog DLL:      TCM.DLL V1.56.6.0
  
 <h2>Project:</h2>
 C:\STM32_Feil_Keil\para_doggit\parallel_dog\MDK-ARM\ParallelDog_f429_test1.uvprojx
-Project File Date:  03/12/2026
+Project File Date:  03/19/2026
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 6 (build 750)', folder: 'C:\AppWorking\Keli5.43\ARM\ARMCC\Bin'
 Build target 'ParallelDog_f429_test1'
-compiling usart.c...
-linking...
-Program Size: Code=58576 RO-data=3568 RW-data=5900 ZI-data=26460  
-FromELF: creating hex file...
-"ParallelDog_f429_test1\ParallelDog_f429_test1.axf" - 0 Error(s), 0 Warning(s).
+compiling dog.c...
+../Lib/Inc/dog.h(10): error:  #5: cannot open source input file "offroad_autoctrl.h": No such file or directory
+  #include "offroad_autoctrl.h" // “∆≥˝¥À∞¸∫¨£¨±‹√‚—≠ª∑“¿¿µ
+..\Lib\Scr\dog.c: 0 warnings, 1 error
+compiling rc.c...
+../Lib/Inc/dog.h(10): error:  #5: cannot open source input file "offroad_autoctrl.h": No such file or directory
+  #include "offroad_autoctrl.h" // “∆≥˝¥À∞¸∫¨£¨±‹√‚—≠ª∑“¿¿µ
+..\Lib\Scr\rc.c: 0 warnings, 1 error
+compiling postrue_control.c...
+../Lib/Inc/dog.h(10): error:  #5: cannot open source input file "offroad_autoctrl.h": No such file or directory
+  #include "offroad_autoctrl.h" // “∆≥˝¥À∞¸∫¨£¨±‹√‚—≠ª∑“¿¿µ
+..\Lib\Scr\postrue_control.c: 0 warnings, 1 error
+compiling freertos.c...
+../Lib/Inc/dog.h(10): error:  #5: cannot open source input file "offroad_autoctrl.h": No such file or directory
+  #include "offroad_autoctrl.h" // “∆≥˝¥À∞¸∫¨£¨±‹√‚—≠ª∑“¿¿µ
+../Core/Src/freertos.c: 0 warnings, 1 error
+compiling main.c...
+../Lib/Inc/dog.h(10): error:  #5: cannot open source input file "offroad_autoctrl.h": No such file or directory
+  #include "offroad_autoctrl.h" // “∆≥˝¥À∞¸∫¨£¨±‹√‚—≠ª∑“¿¿µ
+../Core/Src/main.c: 0 warnings, 1 error
+"ParallelDog_f429_test1\ParallelDog_f429_test1.axf" - 5 Error(s), 0 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -54,7 +70,8 @@ Package Vendor: Keil
 
    * Component: ARM::CMSIS:CORE@6.1.1
       Include file:  CMSIS/Core/Include/tz_context.h
-Build Time Elapsed:  00:00:03
+Target not created.
+Build Time Elapsed:  00:00:02
 </pre>
 </body>
 </html>

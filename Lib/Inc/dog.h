@@ -7,7 +7,6 @@
 #include "stdint.h"
 #include "GO_ctrl.h"
 #include "curve.h"
-#include "offroad_autoctrl.h" // 移除此包含，避免循环依赖
 
 #define RC_MODE      0
 #define AUTO_OFFROAD 1
@@ -44,6 +43,8 @@ typedef enum leg_state_{//单腿状态枚举 每个动作的第一阶段状态必须为0
 	KICK_BACK2_BACK,
 	
 	DAMPING=0
+
+	
 }leg_state;
 
 typedef struct curveConfig{
@@ -84,13 +85,14 @@ typedef struct Leg_para{//单腿参数与对应电机参数结构体
 typedef enum{
     STAND_UP_=0,
     WALK_FORWARD,
+	WALK_BACK,
 	TURN_RIGHT,
 	TURN_LEFT,
 	LOWWALK_FORWARD,
 	JUMP_FORWARD,
 	INJUMP,
-	WALK_BACK,
 	DAMPING_MODE,
+	TROT_ROTATEJUMP
 }dog_state;
 typedef struct dog_location{
 	float pos[2];//x,y位置
@@ -103,7 +105,6 @@ typedef struct{
 	Leg leg[4];
 	uint8_t dog_mode;//
 	dog_location location;//方位信息
-	auto_ctrlcenter auto_ctrl;
 }Dog;
 
 

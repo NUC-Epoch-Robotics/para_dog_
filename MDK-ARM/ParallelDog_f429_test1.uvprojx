@@ -2410,16 +2410,6 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>Lib/Autoctrl</GroupName>
-          <Files>
-            <File>
-              <FileName>offroad_autoctrl.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Lib\AutoContrl\offroad_autoctrl.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
           <GroupName>Lib/SimpleMatrix</GroupName>
           <Files>
             <File>

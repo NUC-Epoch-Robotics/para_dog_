@@ -65,5 +65,3 @@ paralleldog_f429_test1\main.o: ../Lib/Inc/postrue_control.h
 paralleldog_f429_test1\main.o: ../Lib/Inc/dog.h
 paralleldog_f429_test1\main.o: ../Lib/Inc/GO_ctrl.h
 paralleldog_f429_test1\main.o: ../Lib/Inc/curve.h
-paralleldog_f429_test1\main.o: ../Lib/AutoContrl/offroad_autoctrl.h
-paralleldog_f429_test1\main.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\math.h

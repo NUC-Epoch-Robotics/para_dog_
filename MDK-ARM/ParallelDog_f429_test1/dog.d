@@ -40,4 +40,3 @@ paralleldog_f429_test1\dog.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_u
 paralleldog_f429_test1\dog.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h
 paralleldog_f429_test1\dog.o: ../Lib/Inc/ris_protocol.h
 paralleldog_f429_test1\dog.o: ../Lib/Inc/curve.h
-paralleldog_f429_test1\dog.o: ../Lib/AutoContrl/offroad_autoctrl.h

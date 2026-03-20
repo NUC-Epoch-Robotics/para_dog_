@@ -2,7 +2,10 @@
 #include <stdint.h>
 #include <string.h>
 #include "vofa_Debug.h"
-extern float vofa_data;
+
+#define VOFA_DATA_SIZE 10
+float vofa_data[VOFA_DATA_SIZE];
+float last_vofa_data[VOFA_DATA_SIZE];
 
 float vofa_GetData(uint8_t *data)
 {
@@ -13,7 +16,7 @@ float vofa_GetData(uint8_t *data)
       return num;
     }
   // Frame format: 0x5A + 4-byte payload + '\n' (0x0A).
-  if ((data[0] == 0x5A) && (data[5] == 0x0A))
+  if ((data[0] == 0x5A||data[0] == 0x5B||data[0] == 0x5C) && (data[5] == 0x0A))
     {
       uint8_t is_ascii_payload =
         ((data[1] >= 0x20) && (data[1] <= 0x7E)) &&
@@ -43,9 +46,43 @@ float vofa_GetData(uint8_t *data)
                          ((uint32_t)data[4] << 24);
           memcpy(&num, &raw, sizeof(num));
         }
-      vofa_data = num;
+      switch(data[0])
+        {
+        case 0x5A:
+          vofa_data[0] = num;
+          break;
+        case 0x5B:
+          vofa_data[1] = num;
+          break;
+          case 0x5C:
+          vofa_data[2] = num;
+          break;
+        }
+
     }
   return num;
+}
+
+void vofa_data_write(uint8_t index, float *receiver)
+{
+  if (receiver == NULL)
+    {
+      return;
+    }
+
+  if (index >= VOFA_DATA_SIZE)
+    {
+      *receiver = 0.0f;
+      return;
+    }
+
+  if (last_vofa_data[index] != vofa_data[index])
+    {
+      last_vofa_data[index] = vofa_data[index];
+      *receiver = last_vofa_data[index];
+    }
+
+  return;
 }
 
 
