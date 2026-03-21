@@ -1,4 +1,4 @@
-paralleldog_f429_test1\readdata.o: ..\Radar\ReadData.c
+paralleldog_f429_test1\readdata.o: ..\Lib\Perception\Radar\ReadData.c
 paralleldog_f429_test1\readdata.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stdint.h
 paralleldog_f429_test1\readdata.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\string.h
 paralleldog_f429_test1\readdata.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stdio.h
@@ -50,10 +50,4 @@ paralleldog_f429_test1\readdata.o: ../Middlewares/ST/STM32_USB_Device_Library/Co
 paralleldog_f429_test1\readdata.o: ../USB_DEVICE/Target/usbd_conf.h
 paralleldog_f429_test1\readdata.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stdlib.h
 paralleldog_f429_test1\readdata.o: ../Core/Inc/main.h
-paralleldog_f429_test1\readdata.o: ../USB_DEVICE/App/usbd_cdc_if.h
-paralleldog_f429_test1\readdata.o: ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc/usbd_cdc.h
-paralleldog_f429_test1\readdata.o: ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h
-paralleldog_f429_test1\readdata.o: ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_core.h
-paralleldog_f429_test1\readdata.o: ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h
-paralleldog_f429_test1\readdata.o: ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h
-paralleldog_f429_test1\readdata.o: ..\Radar\ReadData.h
+paralleldog_f429_test1\readdata.o: ..\Lib\Perception\Radar\ReadData.h

@@ -1,6 +1,6 @@
-paralleldog_f429_test1\go_ctrl.o: ..\Lib\Scr\GO_ctrl.c
-paralleldog_f429_test1\go_ctrl.o: ../Lib/Inc/GO_ctrl.h
-paralleldog_f429_test1\go_ctrl.o: ../Lib/Inc/motor_control.h
+paralleldog_f429_test1\go_ctrl.o: ..\Lib\Control\GO_M8010\GO_ctrl.c
+paralleldog_f429_test1\go_ctrl.o: ..\Lib\Control\GO_M8010\GO_ctrl.h
+paralleldog_f429_test1\go_ctrl.o: ..\Lib\Control\GO_M8010\motor_control.h
 paralleldog_f429_test1\go_ctrl.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stdint.h
 paralleldog_f429_test1\go_ctrl.o: ../Core/Inc/main.h
 paralleldog_f429_test1\go_ctrl.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h
@@ -37,4 +37,4 @@ paralleldog_f429_test1\go_ctrl.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_
 paralleldog_f429_test1\go_ctrl.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd.h
 paralleldog_f429_test1\go_ctrl.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h
 paralleldog_f429_test1\go_ctrl.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h
-paralleldog_f429_test1\go_ctrl.o: ../Lib/Inc/ris_protocol.h
+paralleldog_f429_test1\go_ctrl.o: ..\Lib\Control\GO_M8010\ris_protocol.h

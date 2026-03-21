@@ -57,6 +57,10 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define MD0_Pin GPIO_PIN_0
+#define MD0_GPIO_Port GPIOD
+#define MD1_Pin GPIO_PIN_1
+#define MD1_GPIO_Port GPIOD
 
 /* USER CODE BEGIN Private defines */
 

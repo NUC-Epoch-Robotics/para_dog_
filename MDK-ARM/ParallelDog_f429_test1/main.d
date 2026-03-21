@@ -59,9 +59,10 @@ paralleldog_f429_test1\main.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\s
 paralleldog_f429_test1\main.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stdlib.h
 paralleldog_f429_test1\main.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\string.h
 paralleldog_f429_test1\main.o: ../Core/Inc/gpio.h
-paralleldog_f429_test1\main.o: ../Lib/Inc/motor_control.h
-paralleldog_f429_test1\main.o: ../Lib/Inc/ris_protocol.h
-paralleldog_f429_test1\main.o: ../Lib/Inc/postrue_control.h
-paralleldog_f429_test1\main.o: ../Lib/Inc/dog.h
-paralleldog_f429_test1\main.o: ../Lib/Inc/GO_ctrl.h
-paralleldog_f429_test1\main.o: ../Lib/Inc/curve.h
+paralleldog_f429_test1\main.o: ..\Lib\Control\GO_M8010\motor_control.h
+paralleldog_f429_test1\main.o: ..\Lib\Control\GO_M8010\ris_protocol.h
+paralleldog_f429_test1\main.o: ..\Lib\Control\curve_motion\postrue_control.h
+paralleldog_f429_test1\main.o: ..\Lib\Dog\dog.h
+paralleldog_f429_test1\main.o: ..\Lib\Control\GO_M8010\GO_ctrl.h
+paralleldog_f429_test1\main.o: ..\Lib\Control\curve_motion\curve.h
+paralleldog_f429_test1\main.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\math.h

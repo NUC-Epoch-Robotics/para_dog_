@@ -4,7 +4,7 @@ type: ARM
 deviceName: STM32F429VETx
 packDir: .pack/Keil/STM32F4xx_DFP.2.14.0
 srcDirs:
-  - ../Radar
+  - ../Lib
 virtualFolder:
   name: <virtual_root>
   files: []
@@ -74,40 +74,6 @@ virtualFolder:
           files:
             - path: ../Core/Src/system_stm32f4xx.c
           folders: []
-    - name: Lib
-      files:
-        - path: ../Lib/Scr/GO_ctrl.c
-        - path: ../Lib/Scr/GO-M8010-6.c
-        - path: ../Lib/Scr/postrue_control.c
-        - path: ../Lib/Scr/curve.c
-        - path: ../Lib/Scr/dog.c
-        - path: ../Lib/Scr/rc.c
-        - path: ../Lib/Inc/rc.h
-        - path: ../Lib/Scr/bsp_sbus.c
-        - path: ../Core/Inc/dma.h
-        - path: ../Core/Inc/hwt605.h
-        - path: ../Core/Src/hwt605.c
-      folders:
-        - name: Autoctrl
-          files:
-            - path: ../Lib/AutoContrl/offroad_autoctrl.c
-            - path: ../Lib/AutoContrl/offroad_autoctrl.h
-          folders: []
-        - name: SimpleMatrix
-          files:
-            - path: ../Lib/SimpleMatrix/simple_matrix.c
-            - path: ../Lib/SimpleMatrix/simple_matrix.h
-          folders: []
-        - name: Kalerman
-          files:
-            - path: ../Lib/Kalerman/imu_kalman.h
-            - path: ../Lib/Kalerman/imu_kalman.c
-          folders: []
-        - name: Vofa
-          files:
-            - path: ../Lib/Vofa/vofa_Debug.c
-            - path: ../Lib/Vofa/vofa_Debug.h
-          folders: []
     - name: Middlewares
       files: []
       folders:
@@ -131,12 +97,6 @@ virtualFolder:
             - path: ../Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ioreq.c
             - path: ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Src/usbd_cdc.c
           folders: []
-    - name: wit_c_sdk
-      files:
-        - path: ../wit_c_sdk/wit_c_sdk/REG.h
-        - path: ../wit_c_sdk/wit_c_sdk/wit_c_sdk.c
-        - path: ../wit_c_sdk/wit_c_sdk/wit_c_sdk.h
-      folders: []
     - name: ::CMSIS
       files: []
       folders: []
@@ -157,12 +117,9 @@ targets:
         - ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy
         - ../Drivers/CMSIS/Device/ST/STM32F4xx/Include
         - ../Drivers/CMSIS/Include
-        - ../Lib/Scr
-        - ../Lib/Inc
         - ../Middlewares/Third_Party/FreeRTOS/Source/include
         - ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS
         - ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F
-        - ../wit_c_sdk/wit_c_sdk
         - ../USB_DEVICE/App
         - ../USB_DEVICE/Target
         - ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc
@@ -170,11 +127,19 @@ targets:
         - .cmsis/include
         - ../MDK-ARM/RTE/_ParallelDog_f429_test1
         - ../Lib/FreeMatrix
-        - ../Lib/Kalerman
         - ../Lib/AutoContrl
-        - ../Radar
         - ../Lib/SimpleMatrix
         - ../Lib/Vofa
+        - ../Lib/Perception
+        - ../Lib/Perception/Radar
+        - ../Lib/Perception/wit_c_sdk/wit_c_sdk
+        - ../Lib/Perception/Kalerman
+        - ../Lib/Perception/hwt605
+        - ../Lib/Control/curve_motion/SimpleMatrix
+        - ../Lib/Dog
+        - ../Lib/Control/GO_M8010
+        - ../Lib/Control/curve_motion
+        - ../Lib/Control/RC
       libList: []
     excludeList: []
     toolchain: AC5

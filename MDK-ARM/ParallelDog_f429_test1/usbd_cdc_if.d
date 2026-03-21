@@ -46,4 +46,4 @@ paralleldog_f429_test1\usbd_cdc_if.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f
 paralleldog_f429_test1\usbd_cdc_if.o: ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_core.h
 paralleldog_f429_test1\usbd_cdc_if.o: ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h
 paralleldog_f429_test1\usbd_cdc_if.o: ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h
-paralleldog_f429_test1\usbd_cdc_if.o: ../Radar/ReadData.h
+paralleldog_f429_test1\usbd_cdc_if.o: ..\Lib\Perception\Radar\ReadData.h

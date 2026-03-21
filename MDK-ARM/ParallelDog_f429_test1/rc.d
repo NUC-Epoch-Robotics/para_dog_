@@ -1,5 +1,5 @@
-paralleldog_f429_test1\rc.o: ..\Lib\Scr\rc.c
-paralleldog_f429_test1\rc.o: ../Lib/Inc/rc.h
+paralleldog_f429_test1\rc.o: ..\Lib\Control\RC\rc.c
+paralleldog_f429_test1\rc.o: ..\Lib\Control\RC\rc.h
 paralleldog_f429_test1\rc.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h
 paralleldog_f429_test1\rc.o: ../Core/Inc/stm32f4xx_hal_conf.h
 paralleldog_f429_test1\rc.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h
@@ -35,9 +35,11 @@ paralleldog_f429_test1\rc.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_u
 paralleldog_f429_test1\rc.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd.h
 paralleldog_f429_test1\rc.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h
 paralleldog_f429_test1\rc.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h
-paralleldog_f429_test1\rc.o: ../Lib/Inc/dog.h
-paralleldog_f429_test1\rc.o: ../Lib/Inc/GO_ctrl.h
-paralleldog_f429_test1\rc.o: ../Lib/Inc/motor_control.h
+paralleldog_f429_test1\rc.o: ..\Lib\Dog\dog.h
+paralleldog_f429_test1\rc.o: ..\Lib\Control\GO_M8010\GO_ctrl.h
+paralleldog_f429_test1\rc.o: ..\Lib\Control\GO_M8010\motor_control.h
 paralleldog_f429_test1\rc.o: ../Core/Inc/main.h
-paralleldog_f429_test1\rc.o: ../Lib/Inc/ris_protocol.h
-paralleldog_f429_test1\rc.o: ../Lib/Inc/curve.h
+paralleldog_f429_test1\rc.o: ..\Lib\Control\GO_M8010\ris_protocol.h
+paralleldog_f429_test1\rc.o: ..\Lib\Control\curve_motion\curve.h
+paralleldog_f429_test1\rc.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\string.h
+paralleldog_f429_test1\rc.o: ..\Lib\Control\RC\bsp_sbus.h
