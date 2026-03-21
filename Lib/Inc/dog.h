@@ -44,6 +44,7 @@ typedef enum leg_state_{//单腿状态枚举 每个动作的第一阶段状态必须为0
 	
 	DAMPING=0
 
+
 	
 }leg_state;
 
@@ -101,10 +102,11 @@ typedef struct dog_location{
 
 
 typedef struct{
+	dog_location location;
 	dog_state state;
 	Leg leg[4];
 	uint8_t dog_mode;//
-	dog_location location;//方位信息
+	
 }Dog;
 
 

@@ -48,7 +48,7 @@
 - 复用现有 dog.state 与各 gait 函数
 - 新增 AUTO 控制器，将 motion_cmd 映射为状态机切换与参数调节
 - 维持 1kHz 级控制循环稳定性，不将重计算放进高频任务
-
+Protocol_ReceiveHandler
 ## 4. 关键数据结构设计
 
 建议新增以下结构体并集中管理（可放在独立模块头文件中）：
@@ -212,7 +212,7 @@ mission_state 转移建议：
 4. set mission_state = IDLE
 
 循环（MissionTask 20Hz）：
-1. wm = get_world_model_snapshot()
+1. wm = 获取世界模型_snapshot()
 2. if not healthy(wm): mission_state = FAILSAFE
 3. switch mission_state
 4. case IDLE: if auto_enabled -> SELECT_TARGET

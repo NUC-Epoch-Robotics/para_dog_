@@ -1475,4 +1475,37 @@ void walk_FPC(Dog *dog)
 
 void Trot_RotateJump_FPC(Dog *dog)
 {
+  static const float stage_duration[6] = {0.1f, 0.1f, 0.2f, 0.2f, 0.2f, 0.2f};
+  static const float stage_frequency[6] = {10.0f, 100.0f, 100.0f, 100.0f, 100.0f, 100.0f};
+  static const uint8_t stage_order[6] = {2, 2, 3, 3, 2, 2};
+  static const bezierPoint ctrl_point[6][4] =
+      {
+          {{0, 190.53f}, {40.0f, 60.0f}, {80.0f, 190.53f}, {100, 190.53f}},   // STEP_FORE1
+          {{0, 190.53f}, {-40.0f, 270.0f}, {-80.0f, 190.53}, {99, 214}},      // KICK_BACK1
+          {{-80.0f, 190.53f}, {-64, 100.0f}, {64, 100.0f}, {80.0f, 190.53f}}, // STEP_FORE2
+          {{80.0f, 190.53f}, {64, 270.0f}, {-64.0f, 270.0f}, {-80, 190.53}},  // KICK_BACK2
+
+          {{100.0f, 190.53f}, {50.0f, 270.0f}, {0, 190.53f}, {0, 0}},  // STEP_FORE_REBACK
+          {{-100.0f, 190.53f}, {-50.0f, 150.0f}, {0, 190.53f}, {0, 0}} // KICK_BACK_REBACK
+      };
+  // PID stage mapping: [0]=STEP_FORE1, [1]=KICK_BACK1, [2]=STEP_FORE2, [3]=KICK_BACK2, [4]=STEP_FORE_REBACK, [5]=KICK_BACK_REBACK
+  static const pid_ pid_base[6][2] =
+      {
+          {{.K_P = 1.0f, .K_W = 0.1f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}, {0}},
+          {{.K_P = 1.0f, .K_W = 0.1f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}, {0}},
+          {{.K_P = 1.0f, .K_W = 0.1f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}, {0}},
+          {{.K_P = 1.0f, .K_W = 0.1f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}, {0}},
+          {{.K_P = 0.3f, .K_W = 0.03f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}, {0}},
+          {{.K_P = 0.25f, .K_W = 0.025f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}, {0}},
+      };
+  static const float leg_pid_ratio[4][2] =
+      {
+          {1.0f, 1.0f},
+          {1.0f, 1.0f},
+          {1.0f, 1.0f},
+          {1.0f, 1.0f},
+      };
+  static bezier_exp bezier_table[4][6];
+  void *stage_bezier[4];
+  leg_state stage_state[4];
 }
