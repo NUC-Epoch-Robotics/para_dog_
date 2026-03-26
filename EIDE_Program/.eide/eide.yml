@@ -140,6 +140,10 @@ targets:
         - ../Lib/Control/GO_M8010
         - ../Lib/Control/curve_motion
         - ../Lib/Control/RC
+        - ../Lib/World
+        - ../Lib/Mission
+        - ../Lib/Planning
+        - ../Lib/Control/A28_RC
       libList: []
     excludeList: []
     toolchain: AC5

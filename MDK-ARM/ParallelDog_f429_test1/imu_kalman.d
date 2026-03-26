@@ -1,10 +1,10 @@
 paralleldog_f429_test1\imu_kalman.o: ..\Lib\Perception\Kalerman\imu_kalman.c
 paralleldog_f429_test1\imu_kalman.o: ..\Lib\Perception\Kalerman\imu_kalman.h
-paralleldog_f429_test1\imu_kalman.o: ..\Lib\Control\curve_motion\SimpleMatrix\simple_matrix.h
+paralleldog_f429_test1\imu_kalman.o: ../Lib/Control/curve_motion/SimpleMatrix/simple_matrix.h
 paralleldog_f429_test1\imu_kalman.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stddef.h
 paralleldog_f429_test1\imu_kalman.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stdbool.h
 paralleldog_f429_test1\imu_kalman.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stdint.h
-paralleldog_f429_test1\imu_kalman.o: ..\Lib\Perception\hwt605\hwt605.h
+paralleldog_f429_test1\imu_kalman.o: ../Lib/Perception/hwt605/hwt605.h
 paralleldog_f429_test1\imu_kalman.o: ../Core/Inc/can.h
 paralleldog_f429_test1\imu_kalman.o: ../Core/Inc/main.h
 paralleldog_f429_test1\imu_kalman.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h

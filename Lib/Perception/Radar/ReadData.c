@@ -13,7 +13,7 @@
 #define LINE_BUF_SIZE 128
 #define RING_BUFFER_SIZE 512
 
-static uint8_t RingBuffer[RING_BUFFER_SIZE] = {0};
+ uint8_t RingBuffer[RING_BUFFER_SIZE] = {0};
 static volatile uint16_t WriteIndex = 0;
 static volatile uint16_t ReadIndex = 0;
 

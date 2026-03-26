@@ -29,8 +29,6 @@
 #include "motor_control.h"
 #include "postrue_control.h"
 #include "math.h"
-#include "rc.h"
-#include "bsp_sbus.h"
 #include "usart.h"
 #include "usbd_cdc_if.h"
 #include <string.h>
@@ -39,6 +37,7 @@
 #include "imu_kalman.h"
 #include "ReadData.h "
 #include "vofa_Debug.h"
+#include "A28_RC.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -61,16 +60,16 @@
 /* USER CODE BEGIN Variables */
 Dog dog;
 uint8_t Rx_Temp[10] = {0};
-QueueHandle_t leg1_pidHandle;
 extern wit_t hwt_angle;
 static imu_kalman_t g_imu_kf;
 unsigned char buf[64] = {0};
+extern uint8_t lora_rx_byte;
 CAN_RxHeaderTypeDef RxHeader;
 osThreadId AutoModeTaskHandle;
 osThreadId CalculateTaskHandle;
 osThreadId RemoteContrlTaskHandle;
-extern float vofa_data[10];
-float state_cmd = 0.0f;
+
+
 /* USER CODE END Variables */
 osThreadId defaultTaskHandle;
 
@@ -165,13 +164,12 @@ void StartDefaultTask(void const * argument)
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN StartDefaultTask */
   hwt605_Init(); // IMU初始化
-  HAL_UART_Receive_IT(&huart2, &Rx_Temp[0], 6);
+  HAL_UART_Receive_IT(&huart2, &lora_rx_byte, 1);
   /* Infinite loop */
   for (;;)
   {
-    printf("%f\n", vofa_data[0]);
 //       HAL_UART_Transmit(&huart2,&d,sizeof(d),100);
-    //  VCP_ReadTask();
+    VCP_ReadTask();
     osDelay(100);
   }
   /* USER CODE END StartDefaultTask */
@@ -214,19 +212,7 @@ void RC_Ctrl(void const *argument)
   /* Infinite loop */
   for (;;)
   {
-
-    vofa_data_write(1, &state_cmd);
-    int32_t state_cmd_i = (int32_t)(state_cmd + ((state_cmd >= 0.0f) ? 0.5f : -0.5f));
-    if (state_cmd_i < (int32_t)STAND_UP_)
-    {
-      state_cmd_i = (int32_t)STAND_UP_;
-    }
-    else if (state_cmd_i > (int32_t)DAMPING_MODE)
-    {
-      state_cmd_i = (int32_t)DAMPING_MODE;
-    }
-    dog.state = (dog_state)state_cmd_i;
-//        rc_remote_ctrl(&dog); // 根据遥控指令更改狗状态
+    A28_RC(&dog);
     osDelay(1);
   }
   /* USER CODE END RC_Ctrl */
@@ -251,24 +237,24 @@ void AutoMode(void const *argument)
     osDelay(10);
   }
 }
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-  if (huart == &huart2)
-  {
-    vofa_GetData(&Rx_Temp[0]);
-//      SBUS_Reveive(Rx_Temp[0]);
-    HAL_UART_Receive_IT(&huart2, &Rx_Temp[0], 6);
-  }
-}
+// void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+// {
+//   if (huart == &huart2)
+//   {
+//     vofa_GetData(&Rx_Temp[0]);
+// //      SBUS_Reveive(Rx_Temp[0]);
+//     HAL_UART_Receive_IT(&huart2, &Rx_Temp[0], 6);
+//   }
+// }
 
-void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
-{
-  if (huart == &huart2)
-  {
-    __HAL_UART_CLEAR_OREFLAG(huart);
-    __HAL_UART_CLEAR_FEFLAG(huart);
-    __HAL_UART_CLEAR_NEFLAG(huart);
-    HAL_UART_Receive_IT(&huart2, &Rx_Temp[0], 6);
-  }
-}
+// void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
+// {
+//   if (huart == &huart2)
+//   {
+//     __HAL_UART_CLEAR_OREFLAG(huart);
+//     __HAL_UART_CLEAR_FEFLAG(huart);
+//     __HAL_UART_CLEAR_NEFLAG(huart);
+//     HAL_UART_Receive_IT(&huart2, &Rx_Temp[0], 6);
+//   }
+// }
 /* USER CODE END Application */

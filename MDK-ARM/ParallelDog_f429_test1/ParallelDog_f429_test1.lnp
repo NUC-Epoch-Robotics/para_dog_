@@ -54,13 +54,15 @@
 "paralleldog_f429_test1\postrue_control.o"
 "paralleldog_f429_test1\go_ctrl.o"
 "paralleldog_f429_test1\go-m8010-6.o"
-"paralleldog_f429_test1\bsp_sbus.o"
-"paralleldog_f429_test1\rc.o"
+"paralleldog_f429_test1\a28_rc.o"
 "paralleldog_f429_test1\hwt605.o"
 "paralleldog_f429_test1\imu_kalman.o"
 "paralleldog_f429_test1\readdata.o"
 "paralleldog_f429_test1\wit_c_sdk.o"
+"paralleldog_f429_test1\task_switch.o"
 "paralleldog_f429_test1\dog.o"
+"paralleldog_f429_test1\world.o"
+"paralleldog_f429_test1\planning.o"
 --library_type=microlib --strict --scatter "ParallelDog_f429_test1\ParallelDog_f429_test1.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers
