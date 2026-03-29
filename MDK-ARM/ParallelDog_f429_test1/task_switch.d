@@ -1,8 +1,8 @@
 paralleldog_f429_test1\task_switch.o: ..\Lib\Mission\task_switch.c
-paralleldog_f429_test1\task_switch.o: ..\Lib\World\world.h
+paralleldog_f429_test1\task_switch.o: ../Lib/World/world.h
 paralleldog_f429_test1\task_switch.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stdbool.h
 paralleldog_f429_test1\task_switch.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stdint.h
-paralleldog_f429_test1\task_switch.o: ..\Lib\World\dog.h
+paralleldog_f429_test1\task_switch.o: ../Lib/World/dog.h
 paralleldog_f429_test1\task_switch.o: ../Lib/Control/GO_M8010/GO_ctrl.h
 paralleldog_f429_test1\task_switch.o: ../Lib/Control/GO_M8010/motor_control.h
 paralleldog_f429_test1\task_switch.o: ../Core/Inc/main.h
@@ -43,7 +43,7 @@ paralleldog_f429_test1\task_switch.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f
 paralleldog_f429_test1\task_switch.o: ../Lib/Control/GO_M8010/ris_protocol.h
 paralleldog_f429_test1\task_switch.o: ../Lib/Control/curve_motion/curve.h
 paralleldog_f429_test1\task_switch.o: ../Lib/Mission/task_switch.h
-paralleldog_f429_test1\task_switch.o: ..\Lib\Planning\planning.h
+paralleldog_f429_test1\task_switch.o: ../Lib/Planning/planning.h
 paralleldog_f429_test1\task_switch.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
 paralleldog_f429_test1\task_switch.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
 paralleldog_f429_test1\task_switch.o: ../Core/Inc/FreeRTOSConfig.h

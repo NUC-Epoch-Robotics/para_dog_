@@ -52,6 +52,7 @@
 #define APP_RX_DATA_SIZE  512
 #define APP_TX_DATA_SIZE  512
 /* USER CODE BEGIN EXPORTED_DEFINES */
+#define VCP_USE_DTR_GATING 0U
 
 /* USER CODE END EXPORTED_DEFINES */
 
@@ -109,6 +110,8 @@ extern USBD_CDC_ItfTypeDef USBD_Interface_fops_FS;
 uint8_t CDC_Transmit_FS(uint8_t* Buf, uint16_t Len);
 
 /* USER CODE BEGIN EXPORTED_FUNCTIONS */
+  uint8_t VCP_IsConnected(void);
+  uint8_t VCP_TryTransmit(uint8_t *Buf, uint16_t Len);
 /* USER CODE END EXPORTED_FUNCTIONS */
 
 /**

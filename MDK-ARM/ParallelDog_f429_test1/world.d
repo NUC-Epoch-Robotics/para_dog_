@@ -43,5 +43,5 @@ paralleldog_f429_test1\world.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ha
 paralleldog_f429_test1\world.o: ../Lib/Control/GO_M8010/ris_protocol.h
 paralleldog_f429_test1\world.o: ../Lib/Control/curve_motion/curve.h
 paralleldog_f429_test1\world.o: ../Lib/Mission/task_switch.h
-paralleldog_f429_test1\world.o: ..\Lib\Planning\planning.h
+paralleldog_f429_test1\world.o: ../Lib/Planning/planning.h
 paralleldog_f429_test1\world.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\string.h

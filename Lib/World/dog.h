@@ -119,7 +119,11 @@ typedef struct DogLocation
 	Coordinates pos; // x,yÎ»ÖÃ
 	float yaw;		 // Æ«º½½Ç
 } DogLocation;
-
+typedef struct COLLECTION_BOX
+{
+	uint8_t collected_box[2];
+	uint8_t box_num;
+} CollectionBox;
 typedef struct Dog
 {
 	mission_type mission;
@@ -131,7 +135,8 @@ typedef struct Dog
 	uint8_t dog_mode; //
 
 } Dog;
+void task_switch(struct Dog *dog, struct BoxGroup (*box_groups)[4], struct ReturnField (*return_field)[4]);
+void task_switch_reset(void);
 
-void dog_task(void);
-void dog_task_stand(void);
+void dog_Planning(Dog *dog);
 #endif // PARALLELDOG_F429_TEST1_DOG_H

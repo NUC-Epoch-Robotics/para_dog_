@@ -12,4 +12,8 @@ typedef enum mission_type
 
 } mission_type;
 
+struct Dog;
+struct BoxGroup;
+struct ReturnField;
+
 #endif /* _TASK_SWITCH_H */

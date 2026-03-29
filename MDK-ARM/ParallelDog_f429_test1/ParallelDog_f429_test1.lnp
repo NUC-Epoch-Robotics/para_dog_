@@ -59,6 +59,7 @@
 "paralleldog_f429_test1\imu_kalman.o"
 "paralleldog_f429_test1\readdata.o"
 "paralleldog_f429_test1\wit_c_sdk.o"
+"paralleldog_f429_test1\vcp_hotplug.o"
 "paralleldog_f429_test1\task_switch.o"
 "paralleldog_f429_test1\dog.o"
 "paralleldog_f429_test1\world.o"

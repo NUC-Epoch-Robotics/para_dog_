@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F429xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;../Middlewares/Third_Party/FreeRTOS/Source/include;../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS;../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F;../wit_c_sdk/wit_c_sdk;../USB_DEVICE/App;../USB_DEVICE/Target;../Middlewares/ST/STM32_USB_Device_Library/Core/Inc;../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc;../Radar;../Lib/Vofa;../Lib/Control/curve_motion/SimpleMatrix;../Lib/Control/curve_motion;../Lib/Control/GO_M8010;../Lib/Control/RC;../Lib/Mission;../Lib/Perception/hwt605;../Lib/Perception/Kalerman;../Lib/Perception/Radar;../Lib/Perception/wit_c_sdk/wit_c_sdk;../Lib/Perception/wit_c_sdk;../Lib/Dog;..\Lib\World;..\Lib\Planning;..\Lib\Mission;..\Lib\Control\A28_RC</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;../Middlewares/Third_Party/FreeRTOS/Source/include;../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS;../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F;../wit_c_sdk/wit_c_sdk;../USB_DEVICE/App;../USB_DEVICE/Target;../Middlewares/ST/STM32_USB_Device_Library/Core/Inc;../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc;../Radar;../Lib/Vofa;../Lib/Control/curve_motion/SimpleMatrix;../Lib/Control/curve_motion;../Lib/Control/GO_M8010;../Lib/Control/RC;../Lib/Mission;../Lib/Perception/hwt605;../Lib/Perception/Kalerman;../Lib/Perception/Radar;../Lib/Perception/wit_c_sdk/wit_c_sdk;../Lib/Perception/wit_c_sdk;../Lib/Dog;../Lib/World;../Lib/Planning;../Lib/Control/A28_RC</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -2233,6 +2233,11 @@
               <FileName>wit_c_sdk.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Lib\Perception\wit_c_sdk\wit_c_sdk\wit_c_sdk.c</FilePath>
+            </File>
+            <File>
+              <FileName>vcp_hotplug.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Lib\Perception\Radar\vcp_hotplug.c</FilePath>
             </File>
           </Files>
         </Group>

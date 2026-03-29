@@ -98,6 +98,7 @@ int main(void)
   MX_USART6_UART_Init();
   MX_CAN2_Init();
   MX_UART5_Init();
+  MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
 	HAL_Delay(4000);
   /* USER CODE END 2 */

@@ -1,7 +1,7 @@
 paralleldog_f429_test1\planning.o: ..\Lib\Planning\planning.c
 paralleldog_f429_test1\planning.o: ..\Lib\Planning\planning.h
 paralleldog_f429_test1\planning.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stdbool.h
-paralleldog_f429_test1\planning.o: ..\Lib\World\dog.h
+paralleldog_f429_test1\planning.o: ../Lib/World/dog.h
 paralleldog_f429_test1\planning.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stdint.h
 paralleldog_f429_test1\planning.o: ../Lib/Control/GO_M8010/GO_ctrl.h
 paralleldog_f429_test1\planning.o: ../Lib/Control/GO_M8010/motor_control.h

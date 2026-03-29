@@ -1,6 +1,6 @@
 paralleldog_f429_test1\postrue_control.o: ..\Lib\Control\curve_motion\postrue_control.c
 paralleldog_f429_test1\postrue_control.o: ..\Lib\Control\curve_motion\postrue_control.h
-paralleldog_f429_test1\postrue_control.o: ..\Lib\World\dog.h
+paralleldog_f429_test1\postrue_control.o: ../Lib/World/dog.h
 paralleldog_f429_test1\postrue_control.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stdint.h
 paralleldog_f429_test1\postrue_control.o: ../Lib/Control/GO_M8010/GO_ctrl.h
 paralleldog_f429_test1\postrue_control.o: ../Lib/Control/GO_M8010/motor_control.h
@@ -42,7 +42,7 @@ paralleldog_f429_test1\postrue_control.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/st
 paralleldog_f429_test1\postrue_control.o: ../Lib/Control/GO_M8010/ris_protocol.h
 paralleldog_f429_test1\postrue_control.o: ../Lib/Control/curve_motion/curve.h
 paralleldog_f429_test1\postrue_control.o: ../Lib/Mission/task_switch.h
-paralleldog_f429_test1\postrue_control.o: ..\Lib\Planning\planning.h
+paralleldog_f429_test1\postrue_control.o: ../Lib/Planning/planning.h
 paralleldog_f429_test1\postrue_control.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stdbool.h
 paralleldog_f429_test1\postrue_control.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\math.h
 paralleldog_f429_test1\postrue_control.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stdio.h

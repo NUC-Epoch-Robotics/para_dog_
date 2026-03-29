@@ -12,9 +12,16 @@ typedef enum BoxColor
     BOX_COLOR_GREY,
     BOX_COLOR_GREEN
 } BoxColor;
+
+typedef enum BoxPickDirection
+{
+    BOX_PICK_FRONT_TO_BACK = 0,
+    BOX_PICK_BACK_TO_FRONT = 1
+} BoxPickDirection;
+
 typedef struct SupplyBox
 {
-    uint8_t box_id; // 0-7
+    uint8_t box_id;           // 0-7
     Coordinates box_position; // x/y-mm
     float box_size;
     BoxColor box_color;
@@ -24,11 +31,13 @@ typedef struct BoxGroup
 {
     uint8_t group_id; // 0-3
     SupplyBox boxes[2];
-    Coordinates pick_pos[2]; // 起点端，归位区端
+    Coordinates pick_pos[2][2]; // [方向][顺序]，每个方向依次经过两个box的pick坐标
     bool return_status;
 } BoxGroup;
 typedef struct ReturnField
 {
+    BoxColor field_color;
+    Coordinates return_position;
     Coordinates field_position; // x/y-mm，需场地实测
     uint8_t returned_num;       //<=2
 } ReturnField;
@@ -38,6 +47,7 @@ typedef struct WorldModel
 {
     Dog dog;
     BoxGroup box_groups[4];
+    ReturnField return_field[4];
 } WorldModel;
 
 void world_init(WorldModel *world);

@@ -6,6 +6,11 @@
 #define PI_F 3.14159265358979323846f
 #endif
 
+typedef enum PLAN_STATUS{
+    PLAN_FAILURE = 0,
+    PLAN_SUCCESS = 1,
+    PLAN_RUNNING = 2
+} PLAN_STATUS;
 static float NormalizeAngleRad(float angle)
 {
     const float two_pi = 2.0f * PI_F;
@@ -22,9 +27,8 @@ static float NormalizeAngleRad(float angle)
     return angle;
 }
 
-static void DogAdjustHeadingTowardTarget(Dog *dog, float yaw_deadzone_rad)
+static PLAN_STATUS DogAdjustHeadingTowardTarget(Dog *dog, float yaw_deadzone_rad)
 {
-
     float vector[2] = {0, 0};
     float vector_angle = 0;
     float dvector_angle = 0;
@@ -49,19 +53,17 @@ static void DogAdjustHeadingTowardTarget(Dog *dog, float yaw_deadzone_rad)
     }
     dog->target_location.yaw = dog->location.yaw + dvector_angle;
     dyaw = dog->target_location.yaw - dog->location.yaw;
-    while (fabsf(dyaw) > yaw_deadzone_rad && ((osKernelSysTick() - adjust_begin_time) < 5000)) // 5秒调整时间限制
+    if (dyaw > 0)
     {
-        if (dyaw > 0)
-        {
-            dog->state = TURN_LEFT;
-        }
-        else
-        {
-            dog->state = TURN_RIGHT;
-        }
-        dyaw = dog->target_location.yaw - dog->location.yaw;
-        osDelay(100);
+        dog->state = TURN_LEFT;
+        return PLAN_RUNNING;
     }
+    else
+    {
+        dog->state = TURN_RIGHT;
+        return PLAN_RUNNING;
+    }
+    return PLAN_SUCCESS;
 }
 
 static void DogAdjustDistanceTowardTarget(Dog *dog)
@@ -82,17 +84,18 @@ static void DogAdjustDistanceTowardTarget(Dog *dog)
         dog->state = STAND_UP_;
         dog->plan.finish_flag = true;
     }
-
-    osDelay(100);
 }
 
 static void DogExecutePointToPointPlan(Dog *dog)
 {
-    while (dog->plan.finish_flag == false)
+    if(dog->plan.finish_flag == false)
     {
-        DogAdjustHeadingTowardTarget(dog, 0.1f); // 0.1f is an example value for the yaw deadzone
-        DogAdjustDistanceTowardTarget(dog);
+       if(DogAdjustHeadingTowardTarget(dog, 0.1f)==PLAN_SUCCESS)// 0.1f is an example value for the yaw deadzone
+        {
+            DogAdjustDistanceTowardTarget(dog);
+        }
     }
+    dog->plan.type=IDLE;
 }
 
 void dog_Planning(Dog *dog)
@@ -108,3 +111,4 @@ void dog_Planning(Dog *dog)
         break;
     }
 }
+

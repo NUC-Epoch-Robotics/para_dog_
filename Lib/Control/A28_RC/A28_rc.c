@@ -130,13 +130,13 @@ void A28_RC(Dog *dog)
 **********************************************************/
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-    if (huart->Instance == USART2)
+    if (huart->Instance == USART3)
     {
         if (Protocol_ReceiveHandler(lora_rx_byte, lora_rx_buf, &lora_rx_len))
         {
             UnpackRockerAndKeys(lora_rx_buf, (uint16_t *)channel, key_state);
         }
-        HAL_UART_Receive_IT(&huart2, &lora_rx_byte, 1);
+        HAL_UART_Receive_IT(&huart3, &lora_rx_byte, 1);
     }
 }
 /* USER CODE END 4 */
