@@ -100,7 +100,7 @@ int main(void)
   MX_UART5_Init();
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
-	HAL_Delay(4000);
+  
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in cmsis_os2.c) */

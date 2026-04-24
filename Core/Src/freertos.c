@@ -263,7 +263,6 @@ void RC_Ctrl(void const *argument)
     // }
     osDelay(100);
   }
-
   /* USER CODE END RC_Ctrl */
 }
 

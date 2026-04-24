@@ -230,6 +230,11 @@
           <WinNumber>1</WinNumber>
           <ItemText>world</ItemText>
         </Ww>
+        <Ww>
+          <count>15</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>vofa_rx_frame</ItemText>
+        </Ww>
       </WatchWindow1>
       <MemoryWindow1>
         <Mm>

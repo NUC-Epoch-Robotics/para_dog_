@@ -3,9 +3,9 @@
 <title>Static Call Graph - [ParallelDog_f429_test1\ParallelDog_f429_test1.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image ParallelDog_f429_test1\ParallelDog_f429_test1.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060750: Last Updated: Fri Apr 24 11:37:37 2026
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060750: Last Updated: Fri Apr 24 16:53:17 2026
 <BR><P>
-<H3>Maximum Stack Usage =        672 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
+<H3>Maximum Stack Usage =        680 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
 StartDefaultTask &rArr; world_init &rArr; Dog_Init &rArr; GO_init &rArr; SERVO_Send_recv &rArr; HAL_UART_Transmit &rArr; UART_WaitOnFlagUntilTimeout
 <P>
@@ -845,10 +845,11 @@ Global Symbols
 <P><STRONG><a name="[1e]"></a>DebugMon_Handler</STRONG> (Thumb, 2 bytes, Stack size 0 bytes, stm32f4xx_it.o(i.DebugMon_Handler))
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32f429xx.o(RESET)
 </UL>
-<P><STRONG><a name="[c4]"></a>Dog_Init</STRONG> (Thumb, 222 bytes, Stack size 552 bytes, postrue_control.o(i.Dog_Init))
-<BR><BR>[Stack]<UL><LI>Max Depth = 664<LI>Call Chain = Dog_Init &rArr; GO_init &rArr; SERVO_Send_recv &rArr; HAL_UART_Transmit &rArr; UART_WaitOnFlagUntilTimeout
+<P><STRONG><a name="[c4]"></a>Dog_Init</STRONG> (Thumb, 354 bytes, Stack size 552 bytes, postrue_control.o(i.Dog_Init))
+<BR><BR>[Stack]<UL><LI>Max Depth = 672<LI>Call Chain = Dog_Init &rArr; GO_init &rArr; SERVO_Send_recv &rArr; HAL_UART_Transmit &rArr; UART_WaitOnFlagUntilTimeout
 </UL>
-<BR>[Calls]<UL><LI><a href="#[c5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Error_Handler
+<BR>[Calls]<UL><LI><a href="#[c3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osDelay
+<LI><a href="#[c5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Error_Handler
 <LI><a href="#[c8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GO_init
 <LI><a href="#[c6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
 <LI><a href="#[c7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy4
@@ -890,8 +891,8 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[82]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;leg_Bezier_Act
 </UL>
 
-<P><STRONG><a name="[c8]"></a>GO_init</STRONG> (Thumb, 86 bytes, Stack size 16 bytes, go_ctrl.o(i.GO_init))
-<BR><BR>[Stack]<UL><LI>Max Depth = 112<LI>Call Chain = GO_init &rArr; SERVO_Send_recv &rArr; HAL_UART_Transmit &rArr; UART_WaitOnFlagUntilTimeout
+<P><STRONG><a name="[c8]"></a>GO_init</STRONG> (Thumb, 90 bytes, Stack size 24 bytes, go_ctrl.o(i.GO_init))
+<BR><BR>[Stack]<UL><LI>Max Depth = 120<LI>Call Chain = GO_init &rArr; SERVO_Send_recv &rArr; HAL_UART_Transmit &rArr; UART_WaitOnFlagUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SERVO_Send_recv
 </UL>
@@ -1835,7 +1836,7 @@ Global Symbols
 <BR>[Address Reference Count : 1]<UL><LI> freertos.o(.constdata)
 </UL>
 <P><STRONG><a name="[8c]"></a>StartDefaultTask</STRONG> (Thumb, 36 bytes, Stack size 0 bytes, freertos.o(i.StartDefaultTask))
-<BR><BR>[Stack]<UL><LI>Max Depth = 672<LI>Call Chain = StartDefaultTask &rArr; world_init &rArr; Dog_Init &rArr; GO_init &rArr; SERVO_Send_recv &rArr; HAL_UART_Transmit &rArr; UART_WaitOnFlagUntilTimeout
+<BR><BR>[Stack]<UL><LI>Max Depth = 680<LI>Call Chain = StartDefaultTask &rArr; world_init &rArr; Dog_Init &rArr; GO_init &rArr; SERVO_Send_recv &rArr; HAL_UART_Transmit &rArr; UART_WaitOnFlagUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[17b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;world_init
 <LI><a href="#[17c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskSuspend
@@ -3163,7 +3164,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[c2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;posCtrlSolve
 </UL>
 
-<P><STRONG><a name="[7b]"></a>main</STRONG> (Thumb, 66 bytes, Stack size 0 bytes, main.o(i.main))
+<P><STRONG><a name="[7b]"></a>main</STRONG> (Thumb, 58 bytes, Stack size 0 bytes, main.o(i.main))
 <BR><BR>[Stack]<UL><LI>Max Depth = 288<LI>Call Chain = main &rArr; MX_FREERTOS_Init &rArr; osThreadCreate &rArr; xTaskCreate &rArr; pvPortMalloc &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
 <BR>[Calls]<UL><LI><a href="#[1f8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osKernelStart
@@ -3227,6 +3228,7 @@ Global Symbols
 <LI><a href="#[160]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LowWalkForward
 <LI><a href="#[15e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;JumpForward
 <LI><a href="#[15c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InJump
+<LI><a href="#[c4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Dog_Init
 <LI><a href="#[bf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Damping_mode
 <LI><a href="#[15d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dog_RunBezierBatch
 </UL>
@@ -3334,11 +3336,10 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[1e5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dogTaskCtrl
 </UL>
 
-<P><STRONG><a name="[1e4]"></a>standUP_FPC</STRONG> (Thumb, 124 bytes, Stack size 136 bytes, postrue_control.o(i.standUP_FPC))
-<BR><BR>[Stack]<UL><LI>Max Depth = 272<LI>Call Chain = standUP_FPC &rArr; dog_RunBezierBatch &rArr; GO_PFC_Ctrl &rArr; SERVO_Send_recv &rArr; HAL_UART_Transmit &rArr; UART_WaitOnFlagUntilTimeout
+<P><STRONG><a name="[1e4]"></a>standUP_FPC</STRONG> (Thumb, 110 bytes, Stack size 72 bytes, postrue_control.o(i.standUP_FPC))
+<BR><BR>[Stack]<UL><LI>Max Depth = 208<LI>Call Chain = standUP_FPC &rArr; dog_RunBezierBatch &rArr; GO_PFC_Ctrl &rArr; SERVO_Send_recv &rArr; HAL_UART_Transmit &rArr; UART_WaitOnFlagUntilTimeout
 </UL>
-<BR>[Calls]<UL><LI><a href="#[15f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pid_build_scaled
-<LI><a href="#[15d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dog_RunBezierBatch
+<BR>[Calls]<UL><LI><a href="#[15d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dog_RunBezierBatch
 <LI><a href="#[c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;dog_InitLegBezierBatch
 <LI><a href="#[c0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;bezier_exp_reset
 <LI><a href="#[c6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
@@ -3531,7 +3532,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[17b]"></a>world_init</STRONG> (Thumb, 44 bytes, Stack size 8 bytes, world.o(i.world_init))
-<BR><BR>[Stack]<UL><LI>Max Depth = 672<LI>Call Chain = world_init &rArr; Dog_Init &rArr; GO_init &rArr; SERVO_Send_recv &rArr; HAL_UART_Transmit &rArr; UART_WaitOnFlagUntilTimeout
+<BR><BR>[Stack]<UL><LI>Max Depth = 680<LI>Call Chain = world_init &rArr; Dog_Init &rArr; GO_init &rArr; SERVO_Send_recv &rArr; HAL_UART_Transmit &rArr; UART_WaitOnFlagUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[c5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Error_Handler
 <LI><a href="#[c4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Dog_Init
@@ -4173,8 +4174,7 @@ Local Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[c7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy4
 </UL>
-<BR>[Called By]<UL><LI><a href="#[1e4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;standUP_FPC
-<LI><a href="#[1e8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;trotRun_FPC
+<BR>[Called By]<UL><LI><a href="#[1e8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;trotRun_FPC
 <LI><a href="#[160]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LowWalkForward
 <LI><a href="#[15e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;JumpForward
 </UL>

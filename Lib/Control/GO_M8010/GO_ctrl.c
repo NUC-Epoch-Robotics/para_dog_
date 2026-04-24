@@ -2,11 +2,11 @@
 // Created by SlimeTommy on 25-10-9.
 //
 #include "GO_ctrl.h"
-HAL_StatusTypeDef GO_init(GO *motor_ctrl,uint8_t id)
+HAL_StatusTypeDef GO_init(GO *motor_ctrl,uint8_t id,uint8_t mode)
 {
   motor_ctrl->id=id;//设置电机ID
   motor_ctrl->cmd.id=id;
-  motor_ctrl->cmd.mode=0;
+  motor_ctrl->cmd.mode=mode;
   motor_ctrl->cmd.K_P=0;
   motor_ctrl->cmd.K_W=0;
   motor_ctrl->cmd.Pos=0;

@@ -26,7 +26,7 @@ typedef struct GO_Ctrl//8010电机控制结构体
     pid_ pid;
     float init_pos;
 }GO;
-HAL_StatusTypeDef GO_init(GO *motor_ctrl,uint8_t id);
+HAL_StatusTypeDef GO_init(GO *motor_ctrl,uint8_t id,uint8_t mode);
 void GO_PosMode_Ctrl(GO *motor_ctrl,uint8_t mode);
 void GO_TorqueMode_Ctrl(GO *motor_ctrl,uint8_t mode);
 void GO_PFC_Ctrl(GO *motor_ctrl,uint8_t mode);
