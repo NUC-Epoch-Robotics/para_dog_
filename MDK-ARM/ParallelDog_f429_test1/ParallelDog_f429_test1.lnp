@@ -48,13 +48,14 @@
 "paralleldog_f429_test1\usbd_ctlreq.o"
 "paralleldog_f429_test1\usbd_ioreq.o"
 "paralleldog_f429_test1\usbd_cdc.o"
-"paralleldog_f429_test1\vofa_debug.o"
 "paralleldog_f429_test1\simple_matrix.o"
 "paralleldog_f429_test1\curve.o"
 "paralleldog_f429_test1\postrue_control.o"
 "paralleldog_f429_test1\go_ctrl.o"
 "paralleldog_f429_test1\go-m8010-6.o"
 "paralleldog_f429_test1\a28_rc.o"
+"paralleldog_f429_test1\vofa_debug_1.o"
+"paralleldog_f429_test1\app_remote_rx.o"
 "paralleldog_f429_test1\hwt605.o"
 "paralleldog_f429_test1\imu_kalman.o"
 "paralleldog_f429_test1\readdata.o"
@@ -64,6 +65,7 @@
 "paralleldog_f429_test1\dog.o"
 "paralleldog_f429_test1\world.o"
 "paralleldog_f429_test1\planning.o"
+"paralleldog_f429_test1\obstacle_crossing.o"
 --library_type=microlib --strict --scatter "ParallelDog_f429_test1\ParallelDog_f429_test1.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

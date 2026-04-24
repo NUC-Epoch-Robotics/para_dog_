@@ -3,14 +3,14 @@
 #include <string.h>
 #include <stdio.h>
 #include "can.h"
-//#include "resolution.h"  
-
+#include "world.h"
+// #include "resolution.h"
 wit_t hwt_angle;
 
 // 角度更新回调
 void OnRegUpdate(uint32_t reg, uint32_t len)
 {
-    if  (reg == GX)
+    if (reg == GX)
     {
         int16_t gx = sReg[GX];
         int16_t gy = sReg[GY];
@@ -21,16 +21,19 @@ void OnRegUpdate(uint32_t reg, uint32_t len)
         hwt_angle.Gy = ((float)gy / 32768.0f * 2000.0f);
         hwt_angle.Gz = ((float)gz / 32768.0f * 2000.0f);
     }
-	
-    if (reg == Roll)
-    { 
-        int16_t roll  = sReg[Roll]; 
-        int16_t pitch = sReg[Pitch];   
-        int16_t yaw   = sReg[Yaw]; 
 
-        hwt_angle.fRoll  = ((float)roll  / 32768.0f * 180.0f); 
+    if (reg == Roll)
+    {
+        int16_t roll = sReg[Roll];
+        int16_t pitch = sReg[Pitch];
+        int16_t yaw = sReg[Yaw];
+
+        hwt_angle.fRoll = ((float)roll / 32768.0f * 180.0f);
         hwt_angle.fPitch = ((float)pitch / 32768.0f * 180.0f);
-        hwt_angle.fYaw   = (float)yaw / 32768.0f * 180.0f;
+        hwt_angle.fYaw = (float)yaw / 32768.0f * 180.0f;
+        world.dog.location.yaw = hwt_angle.fYaw;
+        world.dog.location.roll = hwt_angle.fRoll;
+        world.dog.location.pitch = hwt_angle.fPitch;
     }
 }
 
@@ -60,9 +63,9 @@ void hwt605_Init(void)
 
     // 只接收 ID = 0x0050 的数据帧
     can_filter_st.FilterIdHigh = 0x0000;
-    can_filter_st.FilterIdLow  = 0x0000;
+    can_filter_st.FilterIdLow = 0x0000;
     can_filter_st.FilterMaskIdHigh = 0x0000;
-    can_filter_st.FilterMaskIdLow  = 0x0000;
+    can_filter_st.FilterMaskIdLow = 0x0000;
 
     can_filter_st.FilterBank = 14;
     can_filter_st.SlaveStartFilterBank = 14;
@@ -77,4 +80,3 @@ void hwt605_Init(void)
     WitCanWriteRegister(MyCanWrite);
     WitRegisterCallBack(OnRegUpdate);
 }
-

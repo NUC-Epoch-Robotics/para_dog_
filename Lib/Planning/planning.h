@@ -1,7 +1,7 @@
 #ifndef PLANNING_H
 #define PLANNING_H
 #include <stdbool.h>
-
+#include "Obstacle_Crossing.h"
 typedef struct Dog Dog;
 
 typedef enum plan_type_t
@@ -12,9 +12,9 @@ typedef enum plan_type_t
     DROP_OFF
 } plan_type_t;
 
-typedef struct plan_t
+typedef struct PlanContext
 {
     plan_type_t type;
     bool finish_flag;
-} plan_t;
+} PlanContext;
 #endif // PLANNING_H

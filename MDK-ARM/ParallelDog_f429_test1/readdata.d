@@ -51,3 +51,8 @@ paralleldog_f429_test1\readdata.o: ../USB_DEVICE/Target/usbd_conf.h
 paralleldog_f429_test1\readdata.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stdlib.h
 paralleldog_f429_test1\readdata.o: ../Core/Inc/main.h
 paralleldog_f429_test1\readdata.o: ..\Lib\Perception\Radar\ReadData.h
+paralleldog_f429_test1\readdata.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
+paralleldog_f429_test1\readdata.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/timers.h
+paralleldog_f429_test1\readdata.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h
+paralleldog_f429_test1\readdata.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h
+paralleldog_f429_test1\readdata.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h

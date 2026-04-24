@@ -150,6 +150,8 @@ targets:
         - RTE/_ParallelDog_f429_test1
       libList: []
     excludeList: []
+    settings:
+      debugger: cortex-debug
     toolchain: AC5
     toolchainConfigMap:
       AC5:

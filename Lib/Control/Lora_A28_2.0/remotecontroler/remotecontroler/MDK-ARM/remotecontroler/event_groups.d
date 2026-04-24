@@ -1,0 +1,15 @@
+remotecontroler\event_groups.o: ../Middlewares/Third_Party/FreeRTOS/Source/event_groups.c
+remotecontroler\event_groups.o: D:\danpianji\ARM\ARMCC\Bin\..\include\stdlib.h
+remotecontroler\event_groups.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
+remotecontroler\event_groups.o: D:\danpianji\ARM\ARMCC\Bin\..\include\stddef.h
+remotecontroler\event_groups.o: D:\danpianji\ARM\ARMCC\Bin\..\include\stdint.h
+remotecontroler\event_groups.o: ../Core/Inc/FreeRTOSConfig.h
+remotecontroler\event_groups.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h
+remotecontroler\event_groups.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h
+remotecontroler\event_groups.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/deprecated_definitions.h
+remotecontroler\event_groups.o: ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F/portmacro.h
+remotecontroler\event_groups.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/mpu_wrappers.h
+remotecontroler\event_groups.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/task.h
+remotecontroler\event_groups.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/list.h
+remotecontroler\event_groups.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/timers.h
+remotecontroler\event_groups.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h

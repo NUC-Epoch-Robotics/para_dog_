@@ -56,9 +56,10 @@ paralleldog_f429_test1\freertos.o: ../Lib/World/dog.h
 paralleldog_f429_test1\freertos.o: ../Lib/Control/GO_M8010/GO_ctrl.h
 paralleldog_f429_test1\freertos.o: ../Lib/Control/curve_motion/curve.h
 paralleldog_f429_test1\freertos.o: ../Lib/Mission/task_switch.h
-paralleldog_f429_test1\freertos.o: ../Lib/Planning/planning.h
 paralleldog_f429_test1\freertos.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stdbool.h
-paralleldog_f429_test1\freertos.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\math.h
+paralleldog_f429_test1\freertos.o: ../Lib/Planning/planning.h
+paralleldog_f429_test1\freertos.o: ../Lib/Planning/Obstacle_Crossing.h
+paralleldog_f429_test1\freertos.o: C:\AppWorking\Keli5.43\ARM\ARMCC\include\math.h
 paralleldog_f429_test1\freertos.o: ../Core/Inc/usart.h
 paralleldog_f429_test1\freertos.o: ../USB_DEVICE/App/usbd_cdc_if.h
 paralleldog_f429_test1\freertos.o: ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc/usbd_cdc.h
@@ -76,6 +77,9 @@ paralleldog_f429_test1\freertos.o: ../Core/Inc/can.h
 paralleldog_f429_test1\freertos.o: ../Lib/Perception/Kalerman/imu_kalman.h
 paralleldog_f429_test1\freertos.o: ../Lib/Control/curve_motion/SimpleMatrix/simple_matrix.h
 paralleldog_f429_test1\freertos.o: ../Lib/Perception/Radar/ReadData.h 
-paralleldog_f429_test1\freertos.o: ../Lib/Vofa/vofa_Debug.h
+paralleldog_f429_test1\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
+paralleldog_f429_test1\freertos.o: ..\Lib\Control\Vofa\vofa_Debug.h
 paralleldog_f429_test1\freertos.o: ../Lib/Control/A28_RC/A28_RC.h
 paralleldog_f429_test1\freertos.o: ../Lib/World/world.h
+paralleldog_f429_test1\freertos.o: ..\Lib\Control\Lora_A28_2.0\app_remote_rx.h
+paralleldog_f429_test1\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h

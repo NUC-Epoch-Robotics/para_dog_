@@ -24,6 +24,8 @@
 /* USER CODE BEGIN INCLUDE */
 #include "ReadData.h"
 #include "usbd_def.h"
+#include "vcp_hotplug.h"
+
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -32,8 +34,7 @@
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-static volatile uint8_t s_vcp_dtr_ready = 0;
-static volatile uint8_t s_vcp_connected = 0;
+static VcpHotplugState s_vcp_hotplug = {0U, 0U};
 /* USER CODE END PV */
 
 /** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY
@@ -130,7 +131,6 @@ static int8_t CDC_Receive_FS(uint8_t *pbuf, uint32_t *Len);
 static int8_t CDC_TransmitCplt_FS(uint8_t *pbuf, uint32_t *Len, uint8_t epnum);
 
 /* USER CODE BEGIN PRIVATE_FUNCTIONS_DECLARATION */
-static void VCP_UpdateConnectState(void);
 /* USER CODE END PRIVATE_FUNCTIONS_DECLARATION */
 
 /**
@@ -153,8 +153,7 @@ USBD_CDC_ItfTypeDef USBD_Interface_fops_FS =
 static int8_t CDC_Init_FS(void)
 {
   /* USER CODE BEGIN 3 */
-  s_vcp_dtr_ready = 0;
-  s_vcp_connected = 0;
+  VcpHotplug_Init(&s_vcp_hotplug);
   /* Set Application Buffers */
   USBD_CDC_SetTxBuffer(&hUsbDeviceFS, UserTxBufferFS, 0);
   USBD_CDC_SetRxBuffer(&hUsbDeviceFS, UserRxBufferFS);
@@ -169,8 +168,7 @@ static int8_t CDC_Init_FS(void)
 static int8_t CDC_DeInit_FS(void)
 {
   /* USER CODE BEGIN 4 */
-  s_vcp_dtr_ready = 0;
-  s_vcp_connected = 0;
+  VcpHotplug_Init(&s_vcp_hotplug);
   VCP_ResetRxBuffer();
   return (USBD_OK);
   /* USER CODE END 4 */
@@ -237,9 +235,11 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t *pbuf, uint16_t length)
     if (length == 0U)
     {
       USBD_SetupReqTypedef *req = (USBD_SetupReqTypedef *)pbuf;
-      s_vcp_dtr_ready = ((req->wValue & 0x0001U) != 0U) ? 1U : 0U;
-      VCP_UpdateConnectState();
-      if (s_vcp_connected == 0U)
+      VcpHotplug_SetDtrReady(&s_vcp_hotplug, ((req->wValue & 0x0001U) != 0U) ? 1U : 0U);
+      VcpHotplug_UpdateConnected(&s_vcp_hotplug,
+                                 (hUsbDeviceFS.dev_state == USBD_STATE_CONFIGURED) ? 1U : 0U,
+                                 VCP_USE_DTR_GATING);
+      if (VcpHotplug_IsConnected(&s_vcp_hotplug) == 0U)
       {
         VCP_ResetRxBuffer();
       }
@@ -277,8 +277,10 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t *pbuf, uint16_t length)
 static int8_t CDC_Receive_FS(uint8_t *Buf, uint32_t *Len)
 {
   /* USER CODE BEGIN 6 */
-  VCP_UpdateConnectState();
-  if (s_vcp_connected == 0U)
+  VcpHotplug_UpdateConnected(&s_vcp_hotplug,//热插拔检测
+                             (hUsbDeviceFS.dev_state == USBD_STATE_CONFIGURED) ? 1U : 0U,
+                             VCP_USE_DTR_GATING);
+  if (VcpHotplug_IsConnected(&s_vcp_hotplug) == 0U)
   {
     VCP_ResetRxBuffer();
     USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &UserRxBufferFS[0]);
@@ -287,6 +289,10 @@ static int8_t CDC_Receive_FS(uint8_t *Buf, uint32_t *Len)
   }
 
   VCP_WriteRxData(Buf, (uint16_t)(*Len));
+  if (vcp_read_thread_id != NULL)
+  {
+    osSignalSet(vcp_read_thread_id, VCP_SIGNAL);
+  }
   USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &UserRxBufferFS[0]);
   USBD_CDC_ReceivePacket(&hUsbDeviceFS);
   return (USBD_OK);
@@ -308,8 +314,10 @@ uint8_t CDC_Transmit_FS(uint8_t *Buf, uint16_t Len)
 {
   uint8_t result = USBD_OK;
   /* USER CODE BEGIN 7 */
-  VCP_UpdateConnectState();
-  if (s_vcp_connected == 0U)
+  VcpHotplug_UpdateConnected(&s_vcp_hotplug,
+                             (hUsbDeviceFS.dev_state == USBD_STATE_CONFIGURED) ? 1U : 0U,
+                             VCP_USE_DTR_GATING);
+  if (VcpHotplug_IsConnected(&s_vcp_hotplug) == 0U)
   {
     return USBD_FAIL;
   }
@@ -354,25 +362,12 @@ static int8_t CDC_TransmitCplt_FS(uint8_t *Buf, uint32_t *Len, uint8_t epnum)
 }
 
 /* USER CODE BEGIN PRIVATE_FUNCTIONS_IMPLEMENTATION */
-static void VCP_UpdateConnectState(void)
-{
-  if (hUsbDeviceFS.dev_state != USBD_STATE_CONFIGURED)
-  {
-    s_vcp_connected = 0;
-    return;
-  }
-
-#if (VCP_USE_DTR_GATING == 1U)
-  s_vcp_connected = s_vcp_dtr_ready;
-#else
-  s_vcp_connected = 1U;
-#endif
-}
-
 uint8_t VCP_IsConnected(void)
 {
-  VCP_UpdateConnectState();
-  return s_vcp_connected;
+  VcpHotplug_UpdateConnected(&s_vcp_hotplug,
+                             (hUsbDeviceFS.dev_state == USBD_STATE_CONFIGURED) ? 1U : 0U,
+                             VCP_USE_DTR_GATING);
+  return VcpHotplug_IsConnected(&s_vcp_hotplug);
 }
 
 uint8_t VCP_TryTransmit(uint8_t *Buf, uint16_t Len)

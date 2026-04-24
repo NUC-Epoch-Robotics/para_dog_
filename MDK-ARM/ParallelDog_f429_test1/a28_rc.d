@@ -44,5 +44,6 @@ paralleldog_f429_test1\a28_rc.o: ../Lib/Control/GO_M8010/motor_control.h
 paralleldog_f429_test1\a28_rc.o: ../Lib/Control/GO_M8010/ris_protocol.h
 paralleldog_f429_test1\a28_rc.o: ../Lib/Control/curve_motion/curve.h
 paralleldog_f429_test1\a28_rc.o: ../Lib/Mission/task_switch.h
-paralleldog_f429_test1\a28_rc.o: ../Lib/Planning/planning.h
 paralleldog_f429_test1\a28_rc.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stdbool.h
+paralleldog_f429_test1\a28_rc.o: ../Lib/Planning/planning.h
+paralleldog_f429_test1\a28_rc.o: ../Lib/Planning/Obstacle_Crossing.h

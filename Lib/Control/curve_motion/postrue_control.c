@@ -22,6 +22,8 @@
 #define VMC_VEL_ERR_LIMIT 1200.0f
 #define VMC_FORCE_DEADZONE 0.005f
 #define VMC_Y_AXIS_STIFFNESS_SCALE 1.0f
+#define GAIT_SCALE_MIN 0.0f
+#define GAIT_SCALE_MAX 1.8f
 
 volatile uint32_t g_vmc_force_sat_count[4] = {0};
 volatile uint32_t g_vmc_torque_sat_count[4] = {0};
@@ -68,70 +70,40 @@ static float vmc_shape_pos_err(float err)
 {
   return VMC_POS_ERR_SHAPE_MM * tanhf(err / VMC_POS_ERR_SHAPE_MM);
 }
-// 初始化整机状态、腿部参数和电机通信链路�?
-void Dog_ParaInit(Dog *dog)
-{
-  memset(&dog->leg, 0, sizeof(Leg) * 4);
-  dog->state = STAND_UP_;
-  memset(&dog->location, 0, sizeof(DogLocation)); //
-  for (uint8_t i = 0; i < 4; i++)
-  {
-    dog->leg[i] = (Leg){
-        .L1 = 110,
-        .L2 = 220,
-        .id = i + 1,
-        .state = STAND_UP,
-        .theta_fore = 0,
-        .theta_back = 0};
-  }
 
-  for (uint8_t i = 0; i < 4; i++)
-  {
-    if (GO_init(&dog->leg[i].motor_ctrl_linkf, (dog->leg[i].id) * 2 - 1) != HAL_OK)
-    {
-      //            Error_Handler();
-    }
-    if (GO_init(&dog->leg[i].motor_ctrl_linkb, (dog->leg[i].id) * 2) != HAL_OK)
-    {
-      //            Error_Handler();
-    }
-  }
-}
-// 逆运动学：将足端目标位置转换为关节角和电机位置指令�?
 void leg_Inverse_Kinematics(Leg *leg)
 {
   float A = pow(leg->bezier.exp_pos.x, 2) + pow(leg->bezier.exp_pos.y, 2) + pow(leg->L1, 2) - pow(leg->L2, 2);
-  float theta_fore = -acos(A / ((2 * leg->L1) * sqrtf(pow(leg->bezier.exp_pos.x, 2) + pow(leg->bezier.exp_pos.y, 2)))) + atan2(leg->bezier.exp_pos.y, leg->bezier.exp_pos.x); // rad连杆位置
+  float theta_fore = -acos(A / ((2 * leg->L1) * sqrtf(pow(leg->bezier.exp_pos.x, 2) + pow(leg->bezier.exp_pos.y, 2)))) + atan2(leg->bezier.exp_pos.y, leg->bezier.exp_pos.x); // rad杩炴潌浣嶇疆
   float theta_back = acos(A / ((2 * leg->L1) * sqrtf(pow(leg->bezier.exp_pos.x, 2) + pow(leg->bezier.exp_pos.y, 2)))) + atan2(leg->bezier.exp_pos.y, leg->bezier.exp_pos.x);
-
   if (leg->id == 1)
   {
-    leg->motor_ctrl_linkf.pid.Pos = (theta_fore * 6.33f) + (leg->motor_ctrl_linkf.init_pos + 2.15857f * 6.33f);
-    leg->motor_ctrl_linkb.pid.Pos = -(theta_back * 6.33f) + (leg->motor_ctrl_linkb.init_pos + 2.78744f * 6.33f);
+    leg->motor_ctrl_linkf.pid.Pos = (theta_fore * 6.33f) + (leg->motor_ctrl_linkf.init_pos + 1.77584f * 6.33f);
+    leg->motor_ctrl_linkb.pid.Pos = -(theta_back * 6.33f) + (leg->motor_ctrl_linkb.init_pos + 2.52456f * 6.33f);
   }
   else if (leg->id == 2)
   {
-    leg->motor_ctrl_linkf.pid.Pos = -(theta_fore * 6.33f) + (leg->motor_ctrl_linkf.init_pos - 2.15857f * 6.33f);
-    leg->motor_ctrl_linkb.pid.Pos = (theta_back * 6.33f) + (leg->motor_ctrl_linkb.init_pos - 2.78744f * 6.33f);
+    leg->motor_ctrl_linkf.pid.Pos = -(theta_fore * 6.33f) + (leg->motor_ctrl_linkf.init_pos - 1.77584f * 6.33f);
+    leg->motor_ctrl_linkb.pid.Pos = (theta_back * 6.33f) + (leg->motor_ctrl_linkb.init_pos - 2.52456f * 6.33f);
   }
   else if (leg->id == 3)
   {
-    leg->motor_ctrl_linkf.pid.Pos = (theta_fore * 6.33f) + (leg->motor_ctrl_linkf.init_pos - 0.352552f * 6.33f);
-    leg->motor_ctrl_linkb.pid.Pos = -(theta_back * 6.33f) + (leg->motor_ctrl_linkb.init_pos + 5.298575f * 6.33f);
+    leg->motor_ctrl_linkf.pid.Pos = (theta_fore * 6.33f) + (leg->motor_ctrl_linkf.init_pos - 0.61544f * 6.33f);
+    leg->motor_ctrl_linkb.pid.Pos = -(theta_back * 6.33f) + (leg->motor_ctrl_linkb.init_pos + 4.9159f * 6.33f);
   }
   else if (leg->id == 4)
   {
-    leg->motor_ctrl_linkf.pid.Pos = -(theta_fore * 6.33f) + (leg->motor_ctrl_linkf.init_pos + 0.352552f * 6.33f);
-    leg->motor_ctrl_linkb.pid.Pos = (theta_back * 6.33f) + (leg->motor_ctrl_linkb.init_pos - 5.298575f * 6.33f);
+    leg->motor_ctrl_linkf.pid.Pos = -(theta_fore * 6.33f) + (leg->motor_ctrl_linkf.init_pos + 0.61544f * 6.33f);
+    leg->motor_ctrl_linkb.pid.Pos = (theta_back * 6.33f) + (leg->motor_ctrl_linkb.init_pos - 4.9159f * 6.33f);
     //		leg->motor_ctrl_linkb.pid.Pos = (leg->motor_ctrl_linkb .init_pos);
   }
 }
-// 正运动学：由关节角估计当前足端位置�?
+// 姝ｈ繍鍔ㄥ锛氱敱鍏宠妭瑙掍及璁″綋鍓嶈冻绔綅缃�?
 void leg_Forward_Kinematics(Leg *leg)
 {
-  float Alpha1, Alpha2, a, b, deta, phi;
-  Alpha1 = (56.26f / 180) * pi;
-  Alpha2 = (20.21f / 180) * pi;
+  static float Alpha1 = (78.1954f / 180) * pi;
+  static float Alpha2 = (35.2819f / 180) * pi;
+  float a, b, deta, phi;
   a = (leg->motor_ctrl_linkf.data.Pos - leg->motor_ctrl_linkf.init_pos) / 6.33f;
   b = (leg->motor_ctrl_linkb.data.Pos - leg->motor_ctrl_linkb.init_pos) / 6.33f;
   if (leg->id == 1)
@@ -154,48 +126,66 @@ void leg_Forward_Kinematics(Leg *leg)
     leg->theta_fore = Alpha2 - a;
     leg->theta_back = (2.0f * pi - Alpha1) + b;
   }
-  deta = 0.5f * (leg->theta_back - leg->theta_fore);
+  deta = 0.5f * (leg->theta_fore - leg->theta_back);
   phi = 0.5f * (leg->theta_fore + leg->theta_back);
-  leg->x = cosf(phi) * (110 * cosf(-deta) + 55 * sqrtf(2.0f) * sqrtf(cosf(-2 * deta) + 7.0f));
-  leg->y = sinf(phi) * (110 * cosf(-deta) + 55 * sqrtf(2.0f) * sqrtf(cosf(-2 * deta) + 7.0f));
+  leg->x = cosf(phi) * (125.0f * cosf(deta) + 62.5f * sqrtf(2.0f) * sqrtf(cosf(2 * deta) + 7.0f));
+  leg->y = sinf(phi) * (125.0f * cosf(deta) + 62.5f * sqrtf(2.0f) * sqrtf(cosf(2 * deta) + 7.0f));
   leg->phi = phi;
 }
-// 位置模式单腿控制：按当前贝塞尔目标发送位置指令�?
+// 浣嶇疆妯″紡鍗曡吙鎺у埗锛氭寜褰撳墠璐濆灏旂洰鏍囧彂閫佷綅缃寚浠わ�?
 void posCtrlSolve(Leg *leg)
 {
   leg_Inverse_Kinematics(leg);
 
-  // 前肢
+  // 鍓嶈�?
   leg->motor_ctrl_linkf.pid.K_P = leg->bezier.pid[0].K_P; // K_p
   leg->motor_ctrl_linkf.pid.K_W = leg->bezier.pid[0].K_W; // K_w
   leg->motor_ctrl_linkf.pid.W = leg->bezier.pid[0].W;     // W
   leg->motor_ctrl_linkf.pid.T = leg->bezier.pid[0].T;
 
-  // 后肢
+  // 鍚庤�?
   leg->motor_ctrl_linkb.pid.K_P = leg->bezier.pid[0].K_P; // K_p
   leg->motor_ctrl_linkb.pid.K_W = leg->bezier.pid[0].K_W; // K_w
   leg->motor_ctrl_linkb.pid.W = leg->bezier.pid[0].W;     // W
   leg->motor_ctrl_linkb.pid.T = leg->bezier.pid[0].T;
 }
-// 构建雅可比矩阵，用于速度/力映射�?
+// 鏋勫缓闆呭彲姣旂煩闃碉紝�?��簬閫熷害/鍔涙槧灏勶拷?
 static void leg_Calc_Jacobian(const Leg *leg, float Jacobian[2][2])
 {
   float sigma[6];
+  // ?? = ?cos(?? - ??) + 7
   sigma[0] = sqrtf(cosf(leg->theta_fore - leg->theta_back) + 7.0f);
+  sigma[0] = fmaxf(sigma[0], 1e-6f); // ????0
+
+  // ?? = ??/2 - 3??/2
   sigma[1] = 0.5f * leg->theta_fore - 1.5f * leg->theta_back;
+
+  // ?? = 3??/2 - ??/2
   sigma[2] = 1.5f * leg->theta_fore - 0.5f * leg->theta_back;
+
+  // ?? = (?? + ??)/2
   sigma[5] = 0.5f * (leg->theta_fore + leg->theta_back);
-  sigma[3] = (385 * sqrtf(2.0f) * cosf(sigma[5])) / 2;
-  sigma[4] = 385 * sqrtf(2.0f) * sinf(sigma[5]);
-  Jacobian[0][0] = -(110 * sinf(leg->theta_fore) * sigma[0] + sigma[4] + 55 * sqrtf(2.0f) * sinf(sigma[2])) / (2 * sigma[0]);
-  Jacobian[0][1] = -(110 * sinf(leg->theta_back) * sigma[1] + sigma[4] - 55 * sqrtf(2.0f) * cosf(sigma[1])) / (2 * sigma[0]);
-  Jacobian[1][0] = (55 * cosf(leg->theta_fore) * sigma[0] + sigma[3] + (55 * sqrtf(2.0f) * cosf(sigma[2])) / 2) / sigma[0];
-  Jacobian[1][1] = (55 * cosf(leg->theta_back) * sigma[0] + sigma[3] + (55 * sqrtf(2.0f) * cosf(sigma[1])) / 2) / sigma[0];
+
+  // ?? = 875?2 sin(??)
+  sigma[3] = 875.0f * sqrtf(2.0f) * sinf(sigma[5]);
+
+  // ?? = 875?2 cos(??)
+  sigma[4] = 875.0f * sqrtf(2.0f) * cosf(sigma[5]);
+
+  // ????????
+  Jacobian[0][0] = -((250.0f * sinf(leg->theta_fore) * sigma[0] + sigma[3] + 125.0f * sqrtf(2.0f) * sinf(sigma[2])) / (4.0f * sigma[0]));
+
+  // ????????
+  Jacobian[0][1] = -((250.0f * sinf(leg->theta_back) * sigma[0] + sigma[3] - 125.0f * sqrtf(2.0f) * sinf(sigma[1])) / (4.0f * sigma[0]));
+
+  // ????????
+  Jacobian[1][0] = ((250.0f * cosf(leg->theta_fore) * sigma[0] + sigma[4] + 125.0f * sqrtf(2.0f) * cosf(sigma[2])) / (4.0f * sigma[0]));
+
+  // ????????
+  Jacobian[1][1] = ((250.0f * cosf(leg->theta_back) * sigma[0] + sigma[4] + 125.0f * sqrtf(2.0f) * cosf(sigma[1])) / (4.0f * sigma[0]));
 }
-// VMC主循环：状态估�?-> 虚拟力计�?-> 关节扭矩映射�?
 void vmc_Solve(Leg *leg)
 {
-  // 根据当前状态误差计算足端虚拟力，并将虚拟力转换为期望扭�?{
   float err_x, err_y, err_vx, err_vy;
   float Jacobian[2][2];
   float Jacobian_trans[2][2];
@@ -208,21 +198,20 @@ void vmc_Solve(Leg *leg)
   uint8_t leg_idx;
   matrix_t Fxy, J, J_trans, T, angleVel, f_Vel;
   leg_idx = (leg->id >= 1 && leg->id <= 4) ? (uint8_t)(leg->id - 1) : 0;
-  // 更新关节转角，正解算计算足端坐标
+
   leg_Forward_Kinematics(leg);
-  // 计算雅可比矩�?
   leg_Calc_Jacobian(leg, Jacobian);
   matrix_wrap(&J, 2, 2, &Jacobian[0][0]);
   matrix_wrap(&J_trans, 2, 2, &Jacobian_trans[0][0]);
   matrix_wrap(&T, 2, 1, Torque);
   matrix_transpose(&J, &J_trans);
-  // 通过雅可比矩阵计算当前足端速度
-  angle_Vel[0] = leg->motor_ctrl_linkf.data.W / 6.33f; // 连杆转速rad/s
+  // 閫氳繃闆呭彲姣旂煩闃佃绠楀綋鍓嶈冻绔€熷�?
+  angle_Vel[0] = leg->motor_ctrl_linkf.data.W / 6.33f; // 杩炴潌杞€焤ad/s
   angle_Vel[1] = leg->motor_ctrl_linkb.data.W / 6.33f; // rad/s
   matrix_wrap(&angleVel, 2, 1, angle_Vel);
   matrix_wrap(&f_Vel, 2, 1, leg->fvel);
   matrix_mul(&J, &angleVel, &f_Vel); // mm/s
-  // 通过位置，速度误差计算足端虚拟�?
+  // 閫氳繃浣嶇疆锛岄€熷害璇樊璁＄畻瓒崇铏氭嫙鍔?
   err_x = leg->bezier.exp_pos.x - leg->x; // mm
   err_y = leg->bezier.exp_pos.y - leg->y; // mm
   // Filter measured foot velocity to reduce derivative noise in force control.
@@ -234,22 +223,22 @@ void vmc_Solve(Leg *leg)
   err_y = vmc_shape_pos_err(err_y);
   err_vx = vmc_clamp_scalar(err_vx, VMC_VEL_ERR_LIMIT);
   err_vy = vmc_clamp_scalar(err_vy, VMC_VEL_ERR_LIMIT);
-  // 计算虚拟力以及限�?
-  leg->bezier.pid[1].xyPosIntegral[0] += err_x * leg->bezier.pid[1].K_I; // 积分�?
+  // 璁＄畻铏氭嫙鍔涗互鍙婇檺�?
+  leg->bezier.pid[1].xyPosIntegral[0] += err_x * leg->bezier.pid[1].K_I; // 绉垎锟?
   leg->bezier.pid[1].xyPosIntegral[1] += err_y * leg->bezier.pid[1].K_I;
   leg->Fxy[0] = leg->bezier.pid[1].K_P * err_x + leg->bezier.pid[1].K_W * err_vx + leg->bezier.pid[1].xyPosIntegral[0];
   leg->Fxy[1] = (leg->bezier.pid[1].K_P * VMC_Y_AXIS_STIFFNESS_SCALE) * err_y + leg->bezier.pid[1].K_W * err_vy + leg->bezier.pid[1].xyPosIntegral[1]; // N
-  leg->Fxy[0] = vmc_deadzone(leg->Fxy[0], VMC_FORCE_DEADZONE);                                                                                         // 死区处理
+  leg->Fxy[0] = vmc_deadzone(leg->Fxy[0], VMC_FORCE_DEADZONE);                                                                                         // 姝诲尯澶勭悊
   leg->Fxy[1] = vmc_deadzone(leg->Fxy[1], VMC_FORCE_DEADZONE);
   force_sat = 0;
-  leg->Fxy[0] = vmc_clamp(leg->Fxy[0], VMC_FOOT_FORCE_LIMIT, &force_sat); // 限幅处理
+  leg->Fxy[0] = vmc_clamp(leg->Fxy[0], VMC_FOOT_FORCE_LIMIT, &force_sat); // 闄愬箙澶勭悊
   leg->Fxy[1] = vmc_clamp(leg->Fxy[1], VMC_FOOT_FORCE_LIMIT, &force_sat);
   if (force_sat)
   {
     g_vmc_force_sat_count[leg_idx]++;
   }
   matrix_wrap(&Fxy, 2, 1, leg->Fxy);
-  matrix_mul(&J_trans, &Fxy, &T); // 足端虚拟力转扭矩N*mm
+  matrix_mul(&J_trans, &Fxy, &T); // 瓒崇铏氭嫙鍔涜浆鎵煩N*mm
   torque_sat = 0;
   if (leg->id == 1 || leg->id == 3)
   {
@@ -273,16 +262,16 @@ void vmc_Solve(Leg *leg)
     g_vmc_torque_sat_count[leg_idx]++;
   }
 }
-// void leg_Bezier_Act_init(Leg *leg,leg_state state){//初始化bezier参数，开启新曲线的计�?//	leg->state=state;//设置腿运动状态曲�?////	leg->bezier.			= &node_prt[leg->state];		//结点坐标
-//	leg->bezier.config.n				= bezierDimension[leg->state];	//阶数
-//	leg->bezier.config.fre				= bezierFre[leg->state];		//取样频率
-//	leg->bezier.config.T				= bezierT[leg->state];			//动作周期
-//	leg->bezier.flag			= 0;							//一条曲线计算完成标�?//	leg->bezier.t				= 0;							//曲线比例系数
+// void leg_Bezier_Act_init(Leg *leg,leg_state state){//鍒濆鍖朾ezier鍙傛暟锛屽紑鍚柊鏇茬嚎鐨勮锟?//	leg->state=state;//璁剧疆鑵胯繍鍔ㄧ姸鎬佹洸�?////	leg->bezier.			= &node_prt[leg->state];		//缁撶偣鍧愭爣
+//	leg->bezier.config.n				= bezierDimension[leg->state];	//闃舵�?
+//	leg->bezier.config.fre				= bezierFre[leg->state];		//鍙栨牱棰戠巼
+//	leg->bezier.config.T				= bezierT[leg->state];			//鍔ㄤ綔鍛ㄦ湡
+//	leg->bezier.flag			= 0;							//涓€鏉℃洸绾胯绠楀畬鎴愭爣�?//	leg->bezier.t				= 0;							//鏇茬嚎姣斾緥绯绘�?
 //	leg->bezier.point_sum		= 0;
 //	leg->bezier.config.now_time		= 0;
 //	leg->bezier.last_end_time	= 0;
 //}
-// 为当前腿状态装载贝塞尔轨迹参数�?
+// 涓哄綋鍓嶈吙鐘舵€佽杞借礉濉炲皵杞ㄨ抗鍙傛暟锟?
 void leg_Bezier_Free_Init(Leg *leg, leg_state state, BezierExp *bezier_para)
 {
   leg->state = state;
@@ -344,6 +333,39 @@ static void pid_build_scaled(const pid_ base_pid[2], const float loop_ratio[2], 
   }
 }
 
+static float gait_clamp_scale(float scale)
+{
+  if (isnan(scale) || isinf(scale))
+  {
+    return 1.0f;
+  }
+  if (scale < GAIT_SCALE_MIN)
+  {
+    return GAIT_SCALE_MIN;
+  }
+  if (scale > GAIT_SCALE_MAX)
+  {
+    return GAIT_SCALE_MAX;
+  }
+  return scale;
+}
+
+static void gait_scale_ctrl_points(bezierPoint dst[][4], const bezierPoint src[][4], uint8_t stage_count,
+                                   float scale_x, float scale_y, float neutral_y, uint8_t mirror_x)
+{
+  for (uint8_t stage = 0; stage < stage_count; stage++)
+  {
+    bezierCurve_Scale(dst[stage], src[stage], 4, scale_x, scale_y, neutral_y);
+    if (mirror_x)
+    {
+      for (uint8_t i = 0; i < 4; i++)
+      {
+        dst[stage][i].x *= -1.0f;
+      }
+    }
+  }
+}
+
 static void dog_InitLegBezierBatch(Dog *dog, const leg_state state_by_leg[4], void *const bezier_by_leg[4])
 {
   for (uint8_t leg = 0; leg < 4; leg++)
@@ -369,17 +391,29 @@ static uint8_t dog_IsBezierBatchFinished(const Dog *dog)
   return 1;
 }
 
-static void dog_RunBezierBatch(Dog *dog, void (*act)(Leg *))
+static void dog_RunBezierBatch(Dog *dog, void (*act)(Leg *), uint16_t interval)
 {
+  uint32_t now_time = 0;
+  static uint32_t last_end_time = 0;
   while (!dog_IsBezierBatchFinished(dog))
   {
-    for (uint8_t leg = 0; leg < 4; leg++)
+    now_time = osKernelSysTick();
+    if (now_time - last_end_time >= interval)
     {
-      act(&dog->leg[leg]);
+      for (uint8_t leg = 0; leg < 4; leg++)
+      {
+        act(&dog->leg[leg]);
+      }
+      for (uint8_t leg = 0; leg < 4; leg++)
+      {
+        GO_PFC_Ctrl(&(dog->leg[leg].motor_ctrl_linkf), 1);
+        GO_PFC_Ctrl(&(dog->leg[leg].motor_ctrl_linkb), 1);
+      }
+      last_end_time = osKernelSysTick();
     }
+    osDelay(1);
   }
 }
-
 static void dog_RunSingleLegBezierUntilFinish(Dog *dog, uint8_t leg_index, void (*act)(Leg *))
 {
   while (dog->leg[leg_index].bezier.flag == 0)
@@ -387,20 +421,19 @@ static void dog_RunSingleLegBezierUntilFinish(Dog *dog, uint8_t leg_index, void 
     act(&dog->leg[leg_index]);
   }
 }
-// 按动作周期与采样频率更新贝塞尔目标点
+
 void leg_BezierTargetPos_Update(Leg *leg)
 {
-  leg->bezier.exp_pos = bezierCurve((const bezierPoint(*)[4]) & leg->bezier.config.ctrl_point, leg->bezier.config.n, leg->bezier.t); // 更新pos
-  leg->bezier.t += 1 / (leg->bezier.config.T * leg->bezier.config.fre);                                                              // 更新比例系数
+  leg->bezier.exp_pos = bezierCurve((const bezierPoint(*)[4]) & leg->bezier.config.ctrl_point, leg->bezier.config.n, leg->bezier.t); // 鏇存柊pos
+  leg->bezier.t += 1 / (leg->bezier.config.T * leg->bezier.config.fre);                                                              // 鏇存柊姣斾緥绯绘�?
   if (leg->bezier.t > 1)
   {
-    // 限定比例系数范围
+    // 闄愬畾姣斾緥绯绘暟鑼冨洿
     leg->bezier.t = 1;
   }
-  leg->bezier.point_sum++; // 对已算出点计�?
+  leg->bezier.point_sum++; // 瀵瑰凡绠楀嚭鐐硅�?
 }
 
-// 执行一步位置模式贝塞尔轨迹控制
 void leg_Bezier_Act(Leg *leg)
 {
   leg->bezier.now_time = osKernelSysTick();
@@ -408,9 +441,9 @@ void leg_Bezier_Act(Leg *leg)
   {
     leg_BezierTargetPos_Update(leg);
     posCtrlSolve(leg);
-    // 启动电机
-    GO_PosMode_Ctrl(&(leg->motor_ctrl_linkf), 1);
-    GO_PosMode_Ctrl(&(leg->motor_ctrl_linkb), 1);
+    // 鍚姩鐢垫満
+    GO_PosMode_Ctrl(&(leg->motor_ctrl_linkf), 0);
+    GO_PosMode_Ctrl(&(leg->motor_ctrl_linkb), 0);
     if (leg->bezier.point_sum >= leg->bezier.config.T * leg->bezier.config.fre)
     {
       leg->bezier.flag = 1;
@@ -419,14 +452,13 @@ void leg_Bezier_Act(Leg *leg)
   }
 }
 
-// 执行一步VMC扭矩模式贝塞尔轨迹控�?
-void vmc_leg_Bezier_Act(Leg *leg) // 虚拟模型控制器，更新目标位置，根据当前状态误差计算足端虚拟力，并将虚拟力转换为期望扭�?
+void vmc_leg_Bezier_Act(Leg *leg)
 {
   leg_BezierTargetPos_Update(leg);
   vmc_Solve(leg);
-  // 将更新后的电机扭矩发送给电机
-  GO_TorqueMode_Ctrl(&(leg->motor_ctrl_linkf), 0);
-  GO_TorqueMode_Ctrl(&(leg->motor_ctrl_linkb), 0);
+  // 灏嗘洿鏂板悗鐨勭數鏈烘壄鐭╁彂閫佺粰鐢垫満
+  GO_TorqueMode_Ctrl(&(leg->motor_ctrl_linkf), 1);
+  GO_TorqueMode_Ctrl(&(leg->motor_ctrl_linkb), 1);
   if (leg->bezier.point_sum >= leg->bezier.config.T * leg->bezier.config.fre)
   {
     leg->bezier.flag = 1;
@@ -436,26 +468,20 @@ void vmc_leg_Bezier_Act(Leg *leg) // 虚拟模型控制器，更新目标位置�
 
 void fpc_Leg_Bezier_Act(Leg *leg)
 {
-  leg->bezier.now_time = osKernelSysTick();
   //  if(leg->bezier.point_sum>0)
   //    {
   //      GO_PFC_Ctrl(&(leg->motor_ctrl_linkf), 1);
   //      GO_PFC_Ctrl(&(leg->motor_ctrl_linkb), 1);
   //    }
-  if (leg->bezier.point_sum < leg->bezier.config.T * leg->bezier.config.fre && (leg->bezier.now_time >= (leg->bezier.last_end_time + (uint32_t)(1000 / leg->bezier.config.fre))))
+  if (leg->bezier.point_sum < leg->bezier.config.T * leg->bezier.config.fre)
   {
-
     leg_BezierTargetPos_Update(leg);
     posCtrlSolve(leg);
     vmc_Solve(leg);
-
-    GO_PFC_Ctrl(&(leg->motor_ctrl_linkf), 1);
-    GO_PFC_Ctrl(&(leg->motor_ctrl_linkb), 1);
     if (leg->bezier.point_sum >= leg->bezier.config.T * leg->bezier.config.fre)
     {
       leg->bezier.flag = 1;
     }
-    leg->bezier.last_end_time = osKernelSysTick();
   }
   //  GO_PFC_Ctrl(&(leg->motor_ctrl_linkf), 1);
   //  GO_PFC_Ctrl(&(leg->motor_ctrl_linkb), 1);
@@ -470,67 +496,89 @@ void InJump(Dog *dog);
 void WalkBack(Dog *dog);
 void Damping_mode(Dog *dog);
 void Jump_TurnRight(Dog *dog);
-void standUP_FPC(Dog *dog);
+void standUP_FPC(Dog *dog, float stand_height);
 void trotRun_FPC(Dog *dog, float speed_level);
 void walk_FPC(Dog *dog);
 void Trot_RotateJump_FPC(Dog *dog);
-// 行为状态机分发函数�?
-void dogTaskCtrl(Dog *dog)
+
+void Dog_Init(Dog *dog)
 {
-  if (dog->dog_mode == RC_MODE)
+  if (dog == NULL)
   {
-    switch (dog->state)
+    Error_Handler();
+  }
+
+  memset(&dog->leg, 0, sizeof(Leg) * 4);
+  dog->state = STAND_UP_;
+  memset(&dog->location, 0, sizeof(DogLocation)); //
+  for (uint8_t i = 0; i < 4; i++)
+  {
+    dog->leg[i] = (Leg){
+        .L1 = 125,
+        .L2 = 250,
+        .id = i + 1,
+        .state = STAND_UP,
+        .theta_fore = 0,
+        .theta_back = 0};
+  }
+
+  for (uint8_t i = 0; i < 4; i++)
+  {
+    if (GO_init(&dog->leg[i].motor_ctrl_linkf, (dog->leg[i].id) * 2 - 1) != HAL_OK)
     {
-    case STAND_UP_:
-      standUP_FPC(dog);
-      //          standUP(dog);
-      break;
-    case WALK_FORWARD:
-      //        walkForward_FPC(dog);
-      trotRun_FPC(dog, vofa_data[2]);
-      //        walkForward(dog);
-      break;
-    case TURN_RIGHT:
-      Turn(dog);
-      break;
-    case TURN_LEFT:
-      Turn(dog);
-      break;
-    case LOWWALK_FORWARD:
-      for (uint8_t i = 0; i <= 3; i++)
-      {
-        dog->leg[i].bezier.exp_pos.x = 0;
-        dog->leg[i].bezier.exp_pos.y = 160.0f;
-      }
-      for (uint8_t i = 0; i <= 3; i++)
-      {
-        leg_Inverse_Kinematics(&dog->leg[i]);
-      }
-      osDelay(3000);
-      LowWalkForward(dog);
-      break;
-    case JUMP_FORWARD:
-      JumpForward(dog);
-      break;
-    case INJUMP:
-      InJump(dog);
-      break;
-    case WALK_BACK:
-      trotRun_FPC(dog, vofa_data[2]);
-      break;
-    case DAMPING_MODE:
-      Damping_mode(dog);
-      break;
-//    case TROT_ROTATEJUMP:
-//      Trot_RotateJump_FPC(dog);
-//      break;
-    default:
-      standUP(dog);
-      break;
+      Error_Handler();
+    }
+    if (GO_init(&dog->leg[i].motor_ctrl_linkb, (dog->leg[i].id) * 2) != HAL_OK)
+    {
+      Error_Handler();
     }
   }
+  //  standUP_FPC(dog, 216.5f);
 }
-// 四腿站立动作流程�?
+void dogTaskCtrl(Dog *dog)
+{
+  switch (dog->state)
+  {
+  case STAND_UP_:
+    standUP_FPC(dog, 216.5f);
+    //          standUP(dog);
+    break;
+  case WALK_FORWARD:
+    //        walkForward_FPC(dog);
+    trotRun_FPC(dog, 1);
+    //        walkForward(dog);
+    break;
+  case TURN_RIGHT:
+    Turn(dog);
+    break;
+  case TURN_LEFT:
+    Turn(dog);
+    break;
+  case LOWWALK_FORWARD:
+    standUP_FPC(dog, 180.0f);
+    osDelay(2000);
+    LowWalkForward(dog);
+    break;
+  case JUMP_FORWARD:
+    JumpForward(dog);
+    break;
+  case INJUMP:
+    InJump(dog);
+    break;
+  case WALK_BACK:
+    trotRun_FPC(dog, 1);
+    break;
+  case DAMPING_MODE:
+    Damping_mode(dog);
+    break;
+  //    case TROT_ROTATEJUMP:
+  //      Trot_RotateJump_FPC(dog);
+  //      break;
+  default:
+    standUP(dog);
+    break;
+  }
+}
 void standUP(Dog *dog)
 {
   static const float stage_duration[1] = {1.0f};
@@ -542,7 +590,7 @@ void standUP(Dog *dog)
   // PID stage mapping: [0]=STAND_UP
   static const pid_ pid[1][2] =
       {
-          {{.K_P = 0.2f, .K_W = 0.02f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+         {{.K_P = 0.1f, .K_W = 0.02f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
            {0}}};
   static BezierExp bezier_table[4][1];
   static const leg_state stage_state[4] = {STAND_UP, STAND_UP, STAND_UP, STAND_UP};
@@ -566,7 +614,6 @@ void standUP(Dog *dog)
   }
 }
 
-// 前进步态流程�?
 void walkForward(Dog *dog)
 {
   static const float stage_duration[6] = {0.14f, 0.14f, 0.14f, 0.14f, 0.14f, 0.14f};
@@ -627,7 +674,7 @@ void walkForward(Dog *dog)
     stage_bezier[leg] = &bezier_table[leg][stage_state[leg]];
   }
   dog_InitLegBezierBatch(dog, stage_state, stage_bezier);
-  dog_RunBezierBatch(dog, leg_Bezier_Act);
+  dog_RunBezierBatch(dog, leg_Bezier_Act, 10);
   osDelay(1);
 
   while (dog->state == WALK_FORWARD)
@@ -641,7 +688,7 @@ void walkForward(Dog *dog)
       stage_bezier[leg] = &bezier_table[leg][stage_state[leg]];
     }
     dog_InitLegBezierBatch(dog, stage_state, stage_bezier);
-    dog_RunBezierBatch(dog, leg_Bezier_Act);
+    dog_RunBezierBatch(dog, leg_Bezier_Act, 10);
 
     stage_state[0] = STEP_FORE2;
     stage_state[1] = KICK_BACK2;
@@ -652,7 +699,7 @@ void walkForward(Dog *dog)
       stage_bezier[leg] = &bezier_table[leg][stage_state[leg]];
     }
     dog_InitLegBezierBatch(dog, stage_state, stage_bezier);
-    dog_RunBezierBatch(dog, leg_Bezier_Act);
+    dog_RunBezierBatch(dog, leg_Bezier_Act, 10);
     osDelay(1);
   }
 
@@ -666,22 +713,28 @@ void walkForward(Dog *dog)
   }
   dog_InitLegBezierBatch(dog, stage_state, stage_bezier);
 }
-// 转向步态流程（左转/右转共用）�?
 void Turn(Dog *dog)
 {
-  static const float stage_duration[12] = {0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f};
+  static const float stand_height = 216.5f;
+  static const float step1_height = 20.0f;
+  static const float step2_height = 40.0f;
+  static const float kick1_depth = 20.0f;
+  static const float kick2_depth = 20.0f;
+  static const float range = 90.0f;
+
+  static const float stage_duration[12] = {0.1f, 0.15f, 0.15f, 0.15f, 0.15f, 0.15f, 0.15f, 0.15f, 0.15f, 0.15f, 0.15f, 0.15f};
   static const float stage_frequency[12] = {100.0f, 100.0f, 100.0f, 100.0f, 100.0f, 100.0f, 100.0f, 100.0f, 100.0f, 100.0f, 100.0f, 100.0f};
   static const uint8_t stage_order[12] = {2, 2, 2, 2, 3, 3, 2, 2, 2, 2, 2, 2};
   static const bezierPoint ctrl_point[12][4] =
       {
-          {{0, 190.53f}, {-25.0f, 100.0f}, {-25.0f, 190.53f}, {-100, 190.53f}},     // STEP_B1
-          {{0, 190.53f}, {25, 100.0f}, {50, 190.53f}, {100, 190.53f}},              // STEP_F1
-          {{0, 190.53}, {25.0f, 200.0f}, {50.0f, 190.53}, {99, 214}},               // KICK_F1
-          {{0, 190.53}, {-25, 200.0f}, {-50, 190.53}, {99, 214}},                   // KICK_B1
-          {{50.0f, 190.53f}, {50.0f, 100.0f}, {-50.0f, 100.0f}, {-50.0f, 190.53f}}, // STEP_B2
-          {{-50, 190.53f}, {-50, 100.0f}, {50, 100.0f}, {50, 190.53f}},             // STEP_F2
-          {{-50.0f, 190.53}, {0, 200.0f}, {50.0f, 190.53f}, {99, 214}},             // KICK_F2
-          {{50, 190.53}, {0, 200.0f}, {-50, 190.53f}, {99, 214}},                   // KICK_B2
+          {{0, stand_height}, {-0.25f * range, stand_height - 2.0f * step1_height}, {-0.5f * range, stand_height}, {-100, 190.53f}},                                                  // STEP_B1
+          {{0, stand_height}, {0.25f * range, stand_height - 2.0f * step1_height}, {0.5f * range, stand_height}, {100, 190.53f}},                                                     // STEP_F1
+          {{0, stand_height}, {0.25f * range, stand_height + 2.0f * kick1_depth}, {0.5f * range, stand_height}, {99, 214}},                                                           // KICK_F1
+          {{0, stand_height}, {-0.25f * range, stand_height + 2.0f * kick1_depth}, {-0.5f * range, stand_height}, {99, 214}},                                                         // KICK_B1
+          {{0.5f * range, stand_height}, {0.25f * range, stand_height - 1.33f * step2_height}, {-0.25f * range, stand_height - 1.33f * step2_height}, {-0.5f * range, stand_height}}, // STEP_B2
+          {{-0.5f * range, stand_height}, {-0.25f * range, stand_height - 1.33f * step2_height}, {0.25f * range, stand_height - 1.33f * step2_height}, {0.5f * range, stand_height}}, // STEP_F2
+          {{-0.5f * range, stand_height}, {0, stand_height + 2.0f * kick2_depth}, {0.5f * range, stand_height}, {0.5f * range, 250.0f}},                                              // KICK_F2
+          {{0.5f * range, stand_height}, {0, stand_height + 2.0f * kick2_depth}, {-0.5f * range, stand_height}, {-0.5f * range, 250.0f}},                                             // KICK_B2
 
           {{50.0f, 190.53f}, {25.0f, 200.0f}, {0, 190.53f}, {0, 0}},   // STEP_F_REBACK
           {{-50.0f, 190.53f}, {-25.0f, 200.0f}, {0, 190.53f}, {0, 0}}, // STEP_B_REBACK
@@ -691,31 +744,57 @@ void Turn(Dog *dog)
   // PID stage mapping: [0]=STEP_B1, [1]=STEP_F1, [2]=KICK_F1, [3]=KICK_B1, [4]=STEP_B2, [5]=STEP_F2, [6]=KICK_F2, [7]=KICK_B2, [8]=STEP_F_REBACK, [9]=STEP_B_REBACK, [10]=KICK_F_REBACK, [11]=KICK_B_REBACK
   static const pid_ pid[12][2] =
       {
-          {{.K_P = 0.1f, .K_W = 0.01f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
-           {.K_P = 1.0f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
-          {{.K_P = 0.1f, .K_W = 0.01f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
-           {.K_P = 1.0f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
-          {{.K_P = 0.1f, .K_W = 0.01f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
-           {.K_P = 1.0f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
-          {{.K_P = 0.1f, .K_W = 0.01f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
-           {.K_P = 1.0f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
-          {{.K_P = 0.1f, .K_W = 0.01f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
-           {.K_P = 1.4f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
-          {{.K_P = 0.1f, .K_W = 0.01f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
-           {.K_P = 1.0f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
-          {{.K_P = 0.1f, .K_W = 0.01f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
-           {.K_P = 1.0f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
-          {{.K_P = 0.1f, .K_W = 0.01f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
-           {.K_P = 1.0f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
-          {{.K_P = 0.1f, .K_W = 0.01f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
-           {.K_P = 1.0f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
-          {{.K_P = 0.1f, .K_W = 0.01f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
-           {.K_P = 1.0f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
-          {{.K_P = 0.1f, .K_W = 0.01f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
-           {.K_P = 1.4f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
-          {{.K_P = 0.1f, .K_W = 0.01f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
-           {.K_P = 1.0f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+          {{.K_P = 0.5f, .K_W = 0.05f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+           {.K_P = 0.5f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+          {{.K_P = 0.5f, .K_W = 0.05f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+           {.K_P = 0.5f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+          {{.K_P = 0.5f, .K_W = 0.05f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+           {.K_P = 0.5f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+          {{.K_P = 0.5f, .K_W = 0.05f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+           {.K_P = 0.5f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+          {{.K_P = 0.5f, .K_W = 0.05f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+           {.K_P = 0.5f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+          {{.K_P = 0.5f, .K_W = 0.05f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+           {.K_P = 0.5f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+          {{.K_P = 0.5f, .K_W = 0.05f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+           {.K_P = 0.5f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+          {{.K_P = 0.5f, .K_W = 0.05f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+           {.K_P = 0.5f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+          {{.K_P = 0.5f, .K_W = 0.05f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+           {.K_P = 0.5f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+          {{.K_P = 0.5f, .K_W = 0.05f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+           {.K_P = 0.5f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+          {{.K_P = 0.5f, .K_W = 0.05f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+           {.K_P = 0.5f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+          {{.K_P = 0.5f, .K_W = 0.05f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+           {.K_P = 0.5f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+
       };
+  // static const pid_ pid[12][2] =
+  //     {
+  //         {{.K_P = 0.7f, .K_W = 0.07f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+  //        {.K_P = 1.2f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+  //         {{.K_P = 0.7f, .K_W = 0.07f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+  //        {.K_P = 1.2f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+  //         {{.K_P = 0.7f, .K_W = 0.07f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+  //        {.K_P = 1.2f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+  //         {{.K_P = 0.7f, .K_W = 0.07f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+  //        {.K_P = 1.2f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+  //         {{.K_P = 0.7f, .K_W = 0.07f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+  //        {.K_P = 1.2f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+  //         {{.K_P = 0.7f, .K_W = 0.07f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+  //        {.K_P = 1.2f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+  //         {{.K_P = 0.7f, .K_W = 0.07f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+  //        {.K_P = 1.2f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+  //         {{.K_P = 0.7f, .K_W = 0.07f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+  //        {.K_P = 1.2f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+  //         {{.K_P = 0.7f, .K_W = 0.07f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+  //        {.K_P = 1.2f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+  //         {{.K_P = 0.7f, .K_W = 0.07f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+  //          {.K_P = 1.4f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+  //         {{.K_P = 0.7f, .K_W = 0.07f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+  //        {.K_P = 1.2f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+  //     };
   static BezierExp bezier_table[4][12];
   void *stage_bezier[4];
   leg_state stage_state[4];
@@ -744,8 +823,9 @@ void Turn(Dog *dog)
       stage_bezier[leg] = &bezier_table[leg][stage_state[leg]];
     }
     dog_InitLegBezierBatch(dog, stage_state, stage_bezier);
-    dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act);
-    osDelay(1);
+    dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act, 10);
+    // dog_RunBezierBatch(dog, leg_Bezier_Act, 10);
+    osDelay(50);
 
     while (dog->state == TURN_RIGHT)
     {
@@ -758,7 +838,9 @@ void Turn(Dog *dog)
         stage_bezier[leg] = &bezier_table[leg][stage_state[leg]];
       }
       dog_InitLegBezierBatch(dog, stage_state, stage_bezier);
-      dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act);
+      dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act, 10);
+      // dog_RunBezierBatch(dog, leg_Bezier_Act, 10);
+      osDelay(50);
 
       stage_state[0] = KICK_F2;
       stage_state[1] = STEP_F2;
@@ -769,21 +851,22 @@ void Turn(Dog *dog)
         stage_bezier[leg] = &bezier_table[leg][stage_state[leg]];
       }
       dog_InitLegBezierBatch(dog, stage_state, stage_bezier);
-      dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act);
-      osDelay(1);
+      dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act, 10);
+      // dog_RunBezierBatch(dog, leg_Bezier_Act, 10);
+      osDelay(50);
     }
 
-    stage_state[0] = KICK_F_REBACK;
-    stage_state[1] = STEP_F_REBACK;
-    stage_state[2] = KICK_B_REBACK;
-    stage_state[3] = STEP_B_REBACK;
-    for (uint8_t leg = 0; leg < 4; leg++)
-    {
-      stage_bezier[leg] = &bezier_table[leg][stage_state[leg]];
-    }
-    dog_InitLegBezierBatch(dog, stage_state, stage_bezier);
-    dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act);
-    osDelay(1);
+    // stage_state[0] = KICK_F_REBACK;
+    // stage_state[1] = STEP_F_REBACK;
+    // stage_state[2] = KICK_B_REBACK;
+    // stage_state[3] = STEP_B_REBACK;
+    // for (uint8_t leg = 0; leg < 4; leg++)
+    // {
+    //   stage_bezier[leg] = &bezier_table[leg][stage_state[leg]];
+    // }
+    // dog_InitLegBezierBatch(dog, stage_state, stage_bezier);
+    // dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act, 10);
+    // osDelay(50);
   }
   else if (dog->state == TURN_LEFT)
   {
@@ -796,8 +879,9 @@ void Turn(Dog *dog)
       stage_bezier[leg] = &bezier_table[leg][stage_state[leg]];
     }
     dog_InitLegBezierBatch(dog, stage_state, stage_bezier);
-    dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act);
-    osDelay(1);
+    dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act, 10);
+    // dog_RunBezierBatch(dog, leg_Bezier_Act, 10);
+    osDelay(50);
 
     while (dog->state == TURN_LEFT)
     {
@@ -810,8 +894,9 @@ void Turn(Dog *dog)
         stage_bezier[leg] = &bezier_table[leg][stage_state[leg]];
       }
       dog_InitLegBezierBatch(dog, stage_state, stage_bezier);
-      dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act);
-
+      dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act, 10);
+      // dog_RunBezierBatch(dog, leg_Bezier_Act, 10);
+      osDelay(50);
       stage_state[0] = KICK_B2;
       stage_state[1] = STEP_B2;
       stage_state[2] = KICK_F2;
@@ -821,101 +906,161 @@ void Turn(Dog *dog)
         stage_bezier[leg] = &bezier_table[leg][stage_state[leg]];
       }
       dog_InitLegBezierBatch(dog, stage_state, stage_bezier);
-      dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act);
-      osDelay(1);
+      dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act, 10);
+      // dog_RunBezierBatch(dog, leg_Bezier_Act, 10);
+      osDelay(50);
     }
 
-    stage_state[0] = KICK_B_REBACK;
-    stage_state[1] = STEP_B_REBACK;
-    stage_state[2] = KICK_F_REBACK;
-    stage_state[3] = STEP_F_REBACK;
-    for (uint8_t leg = 0; leg < 4; leg++)
-    {
-      stage_bezier[leg] = &bezier_table[leg][stage_state[leg]];
-    }
-    dog_InitLegBezierBatch(dog, stage_state, stage_bezier);
-    dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act);
-    osDelay(1);
+    // stage_state[0] = KICK_B_REBACK;
+    // stage_state[1] = STEP_B_REBACK;
+    // stage_state[2] = KICK_F_REBACK;
+    // stage_state[3] = STEP_F_REBACK;
+    // for (uint8_t leg = 0; leg < 4; leg++)
+    // {
+    //   stage_bezier[leg] = &bezier_table[leg][stage_state[leg]];
+    // }
+    // dog_InitLegBezierBatch(dog, stage_state, stage_bezier);
+    // dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act, 10);
+    // osDelay(50);
   }
 }
-// 低姿态前进步态流程�?
 void LowWalkForward(Dog *dog)
 {
-  static const float stage_duration[4] = {0.3f, 0.3f, 0.3f, 0.3f};
-  static const float stage_frequency[4] = {50.0f, 50.0f, 50.0f, 50.0f};
-  static const uint8_t stage_order[4] = {2, 2, 3, 2};
-  static const bezierPoint ctrl_point[4][4] =
+  static const float stand_height = 180.0f;
+  static const float step1_height = 20.0f;
+  static const float step2_height = 40.0f;
+  static const float kick1_depth = 20.0f;
+  static const float kick2_depth = 20.0f;
+  static const float range = 80.0f;
+
+  static const float stage_duration[6] = {0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.3f};
+  static const float stage_frequency[6] = {100.0f, 100.0f, 100.0f, 100.0f, 100.0f, 100.0f};
+  static const uint8_t stage_order[6] = {2, 2, 3, 3, 2, 2};
+  static const bezierPoint ctrl_point[6][4] =
       {
-          {{0, 180.53f}, {12.5, 100.0f}, {25, 180.53f}, {100, 180.53f}}, // LOWSTEP_FORE1
-          {{0, 180.53}, {-12.5, 200.0f}, {-25, 180.53}, {99, 214}},      // LOWKICK_BACK1
-          {{-25, 180.53f}, {-30, 100.0f}, {30, 100.0f}, {25, 180.53f}},  // LOWSTEP_FORE2
-          {{25, 180.53}, {0, 200.0f}, {-25, 180.53f}, {99, 214}},        // LOWKICK_BACK2};
+          {{0, stand_height}, {0.25f * range, stand_height - 2.0f * step1_height}, {0.5f * range, stand_height}, {100, 300.0f}},                                                      // STEP_FORE1
+          {{0, stand_height}, {-0.25f * range, stand_height + 2.0f * kick1_depth}, {-0.5f * range, stand_height}, {99, 214}},                                                         // KICK_BACK1
+          {{-0.5f * range, stand_height}, {-0.25f * range, stand_height - 1.33f * step2_height}, {0.25f * range, stand_height - 1.33f * step2_height}, {0.5f * range, stand_height}}, // STEP_FORE2
+          {{0.5f * range, stand_height}, {0.25f * range, stand_height + 1.33f * kick2_depth}, {-0.25f * range, stand_height + 1.33f * kick2_depth}, {-0.5f * range, stand_height}},   // KICK_BACK2
+
+          {{0.5f * range, stand_height}, {0.25f * range, stand_height + 2.0f * kick1_depth}, {0, stand_height}, {0, 0}},   // STEP_FORE_REBACK
+          {{-0.5f * range, stand_height}, {-0.25f * range, stand_height - 2.0f * step1_height}, {0, stand_height}, {0, 0}} // KICK_BACK_REBACK
       };
-  // PID stage mapping: [0]=LOWSTEP_FORE1, [1]=LOWKICK_BACK1, [2]=LOWSTEP_FORE2, [3]=LOWKICK_BACK2
-  static const pid_ pid[4][2] =
+  static const pid_ pid_base[6][2] =
       {
-          {{.K_P = 0.6f, .K_W = 0.01f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}, {0}},
-          {{.K_P = 0.6f, .K_W = 0.01f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}, {0}},
-          {{.K_P = 0.6f, .K_W = 0.01f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}, {0}},
-          {{.K_P = 0.6f, .K_W = 0.01f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}, {0}},
+          {{.K_P = 0.1f, .K_W = 0.01f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+           {.K_P = 1.2f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+          {{.K_P = 0.1f, .K_W = 0.01f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+           {.K_P = 1.2f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+          {{.K_P = 0.1f, .K_W = 0.01f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+           {.K_P = 1.2f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+          {{.K_P = 0.1f, .K_W = 0.01f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+           {.K_P = 1.2f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+          {{.K_P = 0.1f, .K_W = 0.01f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+           {.K_P = 1.2f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+          {{.K_P = 0.1f, .K_W = 0.01f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+           {.K_P = 1.2f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
       };
-  static BezierExp bezier_table[4][4];
+  // static const pid_ pid_base[6][2] =
+  //     {
+  //         {{.K_P = 0.75f, .K_W = 0.075f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+  //          {.K_P = 0.75f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+  //         {{.K_P = 0.75f, .K_W = 0.075f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+  //          {.K_P = 0.75f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+  //         {{.K_P = 0.75f, .K_W = 0.075f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+  //          {.K_P = 0.75f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+  //         {{.K_P = 0.75f, .K_W = 0.075f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+  //          {.K_P = 0.75f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+  //         {{.K_P = 0.75f, .K_W = 0.075f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+  //          {.K_P = 0.75f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+  //         {{.K_P = 0.75f, .K_W = 0.075f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+  //          {.K_P = 0.75f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}}};
+  static const float leg_pid_ratio[6][4][2] =
+      {
+          {{1.5f, 1.5f}, {1.0f, 1.0f}, {1.0f, 1.0f}, {1.5f, 1.5f}},
+          {{1.5f, 1.5f}, {1.0f, 1.0f}, {1.0f, 1.0f}, {1.5f, 1.5f}},
+          {{1.5f, 1.5f}, {1.0f, 1.0f}, {1.0f, 1.0f}, {1.5f, 1.5f}},
+          {{1.5f, 1.5f}, {1.0f, 1.0f}, {1.0f, 1.0f}, {1.5f, 1.5f}},
+          {{1.5f, 1.5f}, {1.0f, 1.0f}, {1.0f, 1.0f}, {1.5f, 1.5f}},
+          {{1.5f, 1.5f}, {1.0f, 1.0f}, {1.0f, 1.0f}, {1.5f, 1.5f}}};
+  static BezierExp bezier_table[4][6];
   void *stage_bezier[4];
   leg_state stage_state[4];
 
+  float speed_level = 1;
+  bezierPoint ctrl_point_scaled[6][4];
+
+  gait_scale_ctrl_points(ctrl_point_scaled, ctrl_point, 6, speed_level, speed_level, stand_height,
+                         (dog->state == WALK_BACK) ? 1U : 0U);
+
   for (uint8_t leg = 0; leg < 4; leg++)
   {
-    for (uint8_t stage = 0; stage < 4; stage++)
+    for (uint8_t stage = 0; stage < 6; stage++)
     {
+      pid_ leg_pid[2];
+      pid_build_scaled(pid_base[stage], leg_pid_ratio[stage][leg], leg_pid);
       bezier_exp_reset(&bezier_table[leg][stage],
                        stage_duration[stage],
                        stage_frequency[stage],
                        stage_order[stage],
-                       ctrl_point[stage],
-                       pid[stage]);
+                       ctrl_point_scaled[stage],
+                       leg_pid);
     }
   }
 
-  stage_state[0] = LOWSTEP_FORE1;
-  stage_state[1] = LOWKICK_BACK1;
-  stage_state[2] = LOWSTEP_FORE1;
-  stage_state[3] = LOWKICK_BACK1;
+  stage_state[0] = STEP_FORE1;
+  stage_state[1] = KICK_BACK1;
+  stage_state[2] = STEP_FORE1;
+  stage_state[3] = KICK_BACK1;
   for (uint8_t leg = 0; leg < 4; leg++)
   {
     stage_bezier[leg] = &bezier_table[leg][stage_state[leg]];
   }
   dog_InitLegBezierBatch(dog, stage_state, stage_bezier);
-  dog_RunBezierBatch(dog, leg_Bezier_Act);
+  dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act, 10);
+  // dog_RunBezierBatch(dog, leg_Bezier_Act, 10);
   osDelay(1);
 
   while (dog->state == LOWWALK_FORWARD)
   {
-    stage_state[0] = LOWKICK_BACK2;
-    stage_state[1] = LOWSTEP_FORE2;
-    stage_state[2] = LOWKICK_BACK2;
-    stage_state[3] = LOWSTEP_FORE2;
+    stage_state[0] = KICK_BACK2;
+    stage_state[1] = STEP_FORE2;
+    stage_state[2] = KICK_BACK2;
+    stage_state[3] = STEP_FORE2;
     for (uint8_t leg = 0; leg < 4; leg++)
     {
       stage_bezier[leg] = &bezier_table[leg][stage_state[leg]];
     }
     dog_InitLegBezierBatch(dog, stage_state, stage_bezier);
-    dog_RunBezierBatch(dog, leg_Bezier_Act);
+    dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act, 10);
+    // dog_RunBezierBatch(dog, leg_Bezier_Act, 10);
 
-    stage_state[0] = LOWSTEP_FORE2;
-    stage_state[1] = LOWKICK_BACK2;
-    stage_state[2] = LOWSTEP_FORE2;
-    stage_state[3] = LOWKICK_BACK2;
+    stage_state[0] = STEP_FORE2;
+    stage_state[1] = KICK_BACK2;
+    stage_state[2] = STEP_FORE2;
+    stage_state[3] = KICK_BACK2;
     for (uint8_t leg = 0; leg < 4; leg++)
     {
       stage_bezier[leg] = &bezier_table[leg][stage_state[leg]];
     }
     dog_InitLegBezierBatch(dog, stage_state, stage_bezier);
-    dog_RunBezierBatch(dog, leg_Bezier_Act);
+    dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act, 10);
+    // dog_RunBezierBatch(dog, leg_Bezier_Act, 10);
     osDelay(1);
   }
+
+  stage_state[0] = STEP_FORE_REBACK;
+  stage_state[1] = KICK_BACK_REBACK;
+  stage_state[2] = STEP_FORE_REBACK;
+  stage_state[3] = KICK_BACK_REBACK;
+  for (uint8_t leg = 0; leg < 4; leg++)
+  {
+    stage_bezier[leg] = &bezier_table[leg][stage_state[leg]];
+  }
+  dog_InitLegBezierBatch(dog, stage_state, stage_bezier);
+  dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act, 10);
 }
 
-// 前跳动作流程�?
 void JumpForward(Dog *dog)
 {
   static const float stage_duration[4] = {1.0f, 0.2f, 0.2f, 0.2f};
@@ -932,13 +1077,13 @@ void JumpForward(Dog *dog)
   static const pid_ pid_base[4][2] =
       {
           {{.K_P = 0.1f, .K_W = 0.03f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
-           {.K_P = 1.0f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+           {.K_P = 1.2f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
           {{.K_P = 0.5f, .K_W = 0.05f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
            {.K_P = 5.0f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
           {{.K_P = 0.1f, .K_W = 0.03f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
-           {.K_P = 1.0f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+           {.K_P = 1.2f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
           {{.K_P = 0.1f, .K_W = 0.03f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
-           {.K_P = 1.0f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+           {.K_P = 1.2f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
       };
   static const float leg_pid_ratio[4][2] =
       {
@@ -973,7 +1118,7 @@ void JumpForward(Dog *dog)
                          (const leg_state[4]){
                              JUMP_PREPARE, JUMP_PREPARE, JUMP_PREPARE, JUMP_PREPARE},
                          stage_bezier);
-  dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act);
+  dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act, 10);
   osDelay(1000);
 
   for (uint8_t leg = 0; leg < 4; leg++)
@@ -984,7 +1129,7 @@ void JumpForward(Dog *dog)
                          (const leg_state[4]){
                              JUMPING, JUMPING, JUMPING, JUMPING},
                          stage_bezier);
-  dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act);
+  dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act, 10);
   osDelay(200);
 
   for (uint8_t leg = 0; leg < 4; leg++)
@@ -995,7 +1140,7 @@ void JumpForward(Dog *dog)
                          (const leg_state[4]){
                              JUMP_LANDING, JUMP_LANDING, JUMP_LANDING, JUMP_LANDING},
                          stage_bezier);
-  dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act);
+  dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act, 10);
   osDelay(100);
 
   for (uint8_t leg = 0; leg < 4; leg++)
@@ -1006,12 +1151,11 @@ void JumpForward(Dog *dog)
                          (const leg_state[4]){
                              JUMP_BUFFER, JUMP_BUFFER, JUMP_BUFFER, JUMP_BUFFER},
                          stage_bezier);
-  dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act);
+  dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act, 10);
   osDelay(1000);
   dog->state = STAND_UP_;
 }
 
-// 原地跳动作流程�?
 void InJump(Dog *dog)
 {
   static const float stage_duration[3] = {1.0f, 1.0f, 0.2f};
@@ -1052,7 +1196,7 @@ void InJump(Dog *dog)
     stage_bezier[leg] = &bezier_table[leg][INJUMP_PREPARE];
   }
   dog_InitLegBezierBatch(dog, stage_state, stage_bezier);
-  dog_RunBezierBatch(dog, leg_Bezier_Act);
+  dog_RunBezierBatch(dog, leg_Bezier_Act, 10);
 
   osDelay(300);
   for (uint8_t leg = 0; leg < 4; leg++)
@@ -1060,7 +1204,7 @@ void InJump(Dog *dog)
     stage_bezier[leg] = &bezier_table[leg][INJUMP_TAKEOFF];
   }
   dog_InitLegBezierBatch(dog, (const leg_state[4]){INJUMP_TAKEOFF, INJUMP_TAKEOFF, INJUMP_TAKEOFF, INJUMP_TAKEOFF}, stage_bezier);
-  dog_RunBezierBatch(dog, leg_Bezier_Act);
+  dog_RunBezierBatch(dog, leg_Bezier_Act, 10);
 
   osDelay(500);
   for (uint8_t leg = 0; leg < 4; leg++)
@@ -1068,11 +1212,10 @@ void InJump(Dog *dog)
     stage_bezier[leg] = &bezier_table[leg][INJUMP_LANDING];
   }
   dog_InitLegBezierBatch(dog, (const leg_state[4]){INJUMP_LANDING, INJUMP_LANDING, INJUMP_LANDING, INJUMP_LANDING}, stage_bezier);
-  dog_RunBezierBatch(dog, leg_Bezier_Act);
+  dog_RunBezierBatch(dog, leg_Bezier_Act, 10);
   osDelay(1000);
 }
 
-// 后退步态流程�?
 void WalkBack(Dog *dog)
 {
   static const float stage_duration[4] = {0.3f, 0.3f, 0.3f, 0.3f};
@@ -1119,7 +1262,7 @@ void WalkBack(Dog *dog)
     stage_bezier[leg] = &bezier_table[leg][stage_state[leg]];
   }
   dog_InitLegBezierBatch(dog, stage_state, stage_bezier);
-  dog_RunBezierBatch(dog, leg_Bezier_Act);
+  dog_RunBezierBatch(dog, leg_Bezier_Act, 10);
   osDelay(1);
   while (dog->state == WALK_BACK)
   {
@@ -1132,7 +1275,7 @@ void WalkBack(Dog *dog)
       stage_bezier[leg] = &bezier_table[leg][stage_state[leg]];
     }
     dog_InitLegBezierBatch(dog, stage_state, stage_bezier);
-    dog_RunBezierBatch(dog, leg_Bezier_Act);
+    dog_RunBezierBatch(dog, leg_Bezier_Act, 10);
 
     stage_state[0] = STEP_FORE2_BACK;
     stage_state[1] = KICK_BACK2_BACK;
@@ -1143,12 +1286,11 @@ void WalkBack(Dog *dog)
       stage_bezier[leg] = &bezier_table[leg][stage_state[leg]];
     }
     dog_InitLegBezierBatch(dog, stage_state, stage_bezier);
-    dog_RunBezierBatch(dog, leg_Bezier_Act);
+    dog_RunBezierBatch(dog, leg_Bezier_Act, 10);
     osDelay(1);
   }
 }
 
-// 阻尼模式流程（低刚度）�?
 void Damping_mode(Dog *dog)
 {
   // PID stage mapping: [0]=position loop, [1]=force/torque loop (unused here)
@@ -1180,114 +1322,95 @@ void Damping_mode(Dog *dog)
   }
 }
 
-// VMC 模式
-// 基于VMC的站立流程�?
-
-void standUP_FPC(Dog *dog)
+void standUP_FPC(Dog *dog, float stand_height)
 {
-  static const bezierPoint ctrl_point[4] = {{0, 190.53f}, {0, 0}, {0, 0}, {0, 0}};
-  // PID stage mapping: [0]=position loop, [1]=force/torque loop
+  bezierPoint ctrl_point[4] = {{0, stand_height}, {0, 0}, {0, 0}, {0, 0}};
+
   static const pid_ pid[2] =
       {
-          {.K_P = 0.075f, .K_W = 0.0075f, .K_I = 0.01f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
-          {.K_P = 0.5f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}};
+          {.K_P = 0.15f, .K_W = 0.030f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+          {.K_P = 1.0f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}};
+  // static const pid_ pid[2] =
+  //     {
+  //         {.K_P = 0.6f, .K_W = 0.06f, .K_I = 0.01f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+  //         {.K_P = 0.0f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}};
   static BezierExp bezier_table[4][1];
   static const leg_state stage_state[4] = {STAND_UP, STAND_UP, STAND_UP, STAND_UP};
   void *stage_bezier[4];
-
+  static const float leg_pid_ratio[4][2] =
+      {
+          {1.0f, 1.0f},
+          {1.0f, 1.0f},
+          {1.0f, 1.0f},
+          {1.0f, 1.0f},
+      };
   for (uint8_t leg = 0; leg < 4; leg++)
   {
-    bezier_exp_reset(&bezier_table[leg][STAND_UP], 1.0f, 50.0f, 0, ctrl_point, pid);
+    pid_ leg_pid[2];
+    pid_build_scaled(pid, leg_pid_ratio[leg], leg_pid);
+    bezier_exp_reset(&bezier_table[leg][STAND_UP], 0.5f, 100.0f, 0, ctrl_point, leg_pid);
     stage_bezier[leg] = &bezier_table[leg][STAND_UP];
   }
-
-  vofa_data_write(0, &bezier_table[0][STAND_UP].pid[0].K_P);
   dog_InitLegBezierBatch(dog, stage_state, stage_bezier);
-  dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act);
+  dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act, 10);
+  // dog_RunBezierBatch(dog, leg_Bezier_Act, 10);
 }
 
 void trotRun_FPC(Dog *dog, float speed_level)
 {
-  static const float stage_duration[6] = {0.2f, 0.2f, 0.2f, 0.2f, 0.2f, 0.3f};
+  static const float stand_height = 216.5f;
+  static const float step1_height = 30.0f;
+  static const float step2_height = 70.0f;
+  static const float kick1_depth = 25.0f;
+  static const float kick2_depth = 25.0f;
+  static const float range = 100.0f;
+
+  static const float stage_duration[6] = {0.15f, 0.20f, 0.15f, 0.20f, 0.15f, 0.15f};
   static const float stage_frequency[6] = {100.0f, 100.0f, 100.0f, 100.0f, 100.0f, 100.0f};
   static const uint8_t stage_order[6] = {2, 2, 3, 3, 2, 2};
   static const bezierPoint ctrl_point[6][4] =
       {
-          {{0, 190.53f}, {50.0f, 60.0f}, {100.0f, 190.53f}, {100, 190.53f}},  // STEP_FORE1
-          {{0, 190.53f}, {-50.0f, 270.0f}, {-100.0f, 190.53}, {99, 214}},     // KICK_BACK1
-          {{-100.0f, 190.53f}, {0, 100.0f}, {80, 100.0f}, {100.0f, 190.53f}}, // STEP_FORE2
-          {{100.0f, 190.53f}, {80, 270.0f}, {0.0f, 270.0f}, {-100, 190.53}},  // KICK_BACK2
+          {{0, stand_height}, {0.25f * range, stand_height - 2.0f * step1_height}, {0.5f * range, stand_height}, {100, 300.0f}},                                                      // STEP_FORE1
+          {{0, stand_height}, {-0.25f * range, stand_height + 2.0f * kick1_depth}, {-0.5f * range, stand_height}, {99, 214}},                                                         // KICK_BACK1
+          {{-0.5f * range, stand_height}, {-0.3f * range, stand_height - 1.33f * step2_height}, {0.3f * range, stand_height - 1.33f * step2_height}, {0.5f * range, stand_height}}, // STEP_FORE2
+          {{0.5f * range, stand_height}, {0.3f * range, stand_height + 1.33f * kick2_depth}, {-0.3f * range, stand_height + 1.33f * kick2_depth}, {-0.5f * range, stand_height}},   // KICK_BACK2
 
-          {{100.0f, 190.53f}, {50.0f, 270.0f}, {0, 190.53f}, {0, 0}},  // STEP_FORE_REBACK
-          {{-100.0f, 190.53f}, {-50.0f, 150.0f}, {0, 190.53f}, {0, 0}} // KICK_BACK_REBACK
+          {{0.5f * range, stand_height}, {0.25f * range, stand_height + 2.0f * kick1_depth}, {0, stand_height}, {0, 0}},   // STEP_FORE_REBACK
+          {{-0.5f * range, stand_height}, {-0.25f * range, stand_height - 2.0f * step1_height}, {0, stand_height}, {0, 0}} // KICK_BACK_REBACK
       };
-  // PID stage mapping: [0]=STEP_FORE1, [1]=KICK_BACK1, [2]=STEP_FORE2, [3]=KICK_BACK2, [4]=STEP_FORE_REBACK, [5]=KICK_BACK_REBACK
   static const pid_ pid_base[6][2] =
       {
-          {{.K_P = 0.1f, .K_W = 0.01f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
-           {.K_P = 1.0f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
-          {{.K_P = 0.1f, .K_W = 0.01f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
-           {.K_P = 1.0f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
-          {{.K_P = 0.1f, .K_W = 0.01f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
-           {.K_P = 1.0f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
-          {{.K_P = 0.1f, .K_W = 0.01f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
-           {.K_P = 1.0f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
-          {{.K_P = 0.1f, .K_W = 0.01f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
-           {.K_P = 1.4f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
-          {{.K_P = 0.1f, .K_W = 0.01f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
-           {.K_P = 1.0f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+          {{.K_P = 0.1f, .K_W = 0.02f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+           {.K_P = 1.2f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+         {{.K_P = 0.1f, .K_W = 0.02f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+           {.K_P = 1.2f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+         {{.K_P = 0.1f, .K_W = 0.02f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+           {.K_P = 1.2f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+         {{.K_P = 0.1f, .K_W = 0.02f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+           {.K_P = 1.2f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+         {{.K_P = 0.1f, .K_W = 0.02f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+           {.K_P = 1.2f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+         {{.K_P = 0.1f, .K_W = 0.02f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0},
+           {.K_P = 1.2f, .K_W = 0.0f, .K_I = 0.0f, .xyPosIntegral = {0, 0}, .Pos = 0, .W = 0, .T = 0}},
+
       };
   static const float leg_pid_ratio[6][4][2] =
       {
           {{1.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 1.0f}},
-          {{1.0f, 1.0f}, {1.0f, 1.0f}, {1.25f, 1.25f}, {1.25f, 1.25f}},
-          {{1.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 1.0f}},
-          {{1.0f, 1.0f}, {1.0f, 1.0f}, {1.25f, 1.25f}, {1.25f, 1.25f}},
-          {{1.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 1.0f}},
-          {{1.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 1.0f}},
+{{1.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 1.0f}},
+{{1.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 1.0f}},
+{{1.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 1.0f}},
+{{1.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 1.0f}},
+{{1.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 1.0f}},
       };
   static BezierExp bezier_table[4][6];
   void *stage_bezier[4];
   leg_state stage_state[4];
-
-  if (speed_level > 1 || speed_level < 0)
-  {
-    speed_level = 1;
-  }
   bezierPoint ctrl_point_scaled[6][4];
-  const float neutral_y = 190.53f;
-  memcpy(ctrl_point_scaled, ctrl_point, sizeof(ctrl_point_scaled));
+  speed_level = gait_clamp_scale(speed_level); // ???????????????
 
-  static const uint8_t scale_x_idx[][2] = {
-      {0, 1}, {0, 2}, {1, 1}, {1, 2}, {2, 0}, {2, 2}, {2, 3}, {3, 0}, {3, 1}, {3, 3}};
-  static const uint8_t scale_y_idx[][2] = {
-      {0, 1}, {1, 1}, {2, 1}, {2, 2}, {3, 1}, {3, 2}};
-
-  for (uint8_t i = 0; i < (uint8_t)(sizeof(scale_x_idx) / sizeof(scale_x_idx[0])); i++)
-  {
-    const uint8_t stage = scale_x_idx[i][0];
-    const uint8_t point = scale_x_idx[i][1];
-    ctrl_point_scaled[stage][point].x *= speed_level;
-  }
-
-  for (uint8_t i = 0; i < (uint8_t)(sizeof(scale_y_idx) / sizeof(scale_y_idx[0])); i++)
-  {
-    const uint8_t stage = scale_y_idx[i][0];
-    const uint8_t point = scale_y_idx[i][1];
-    ctrl_point_scaled[stage][point].y = neutral_y + (ctrl_point_scaled[stage][point].y - neutral_y) * speed_level;
-  }
-
-  if (dog->state == WALK_BACK) // 判断前进方向
-  {
-    static const uint8_t mirror_x_idx[][2] = {
-        {0, 1}, {0, 2}, {1, 1}, {1, 2}, {2, 0}, {2, 2}, {2, 3}, {3, 0}, {3, 1}, {3, 3}, {4, 0}, {4, 1}, {5, 0}, {5, 1}};
-    for (uint8_t i = 0; i < (uint8_t)(sizeof(mirror_x_idx) / sizeof(mirror_x_idx[0])); i++)
-    {
-      const uint8_t stage = mirror_x_idx[i][0];
-      const uint8_t point = mirror_x_idx[i][1];
-      ctrl_point_scaled[stage][point].x *= -1.0f;
-    }
-  }
+  gait_scale_ctrl_points(ctrl_point_scaled, ctrl_point, 6, speed_level, speed_level, stand_height,
+                         (dog->state == WALK_BACK) ? 1U : 0U);
 
   for (uint8_t leg = 0; leg < 4; leg++)
   {
@@ -1303,7 +1426,6 @@ void trotRun_FPC(Dog *dog, float speed_level)
                        leg_pid);
     }
   }
-
   stage_state[0] = STEP_FORE1;
   stage_state[1] = KICK_BACK1;
   stage_state[2] = STEP_FORE1;
@@ -1313,10 +1435,11 @@ void trotRun_FPC(Dog *dog, float speed_level)
     stage_bezier[leg] = &bezier_table[leg][stage_state[leg]];
   }
   dog_InitLegBezierBatch(dog, stage_state, stage_bezier);
-  dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act);
+  dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act, 10);
+  // dog_RunBezierBatch(dog, leg_Bezier_Act, 10);
   osDelay(1);
 
-  while (dog->state == WALK_FORWARD)
+  while (dog->state == WALK_FORWARD || dog->state == WALK_BACK)
   {
     stage_state[0] = KICK_BACK2;
     stage_state[1] = STEP_FORE2;
@@ -1327,7 +1450,8 @@ void trotRun_FPC(Dog *dog, float speed_level)
       stage_bezier[leg] = &bezier_table[leg][stage_state[leg]];
     }
     dog_InitLegBezierBatch(dog, stage_state, stage_bezier);
-    dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act);
+    dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act, 10);
+    // dog_RunBezierBatch(dog, leg_Bezier_Act, 10);
 
     stage_state[0] = STEP_FORE2;
     stage_state[1] = KICK_BACK2;
@@ -1338,7 +1462,8 @@ void trotRun_FPC(Dog *dog, float speed_level)
       stage_bezier[leg] = &bezier_table[leg][stage_state[leg]];
     }
     dog_InitLegBezierBatch(dog, stage_state, stage_bezier);
-    dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act);
+    dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act, 10);
+    // dog_RunBezierBatch(dog, leg_Bezier_Act, 10);
     osDelay(1);
   }
 
@@ -1351,6 +1476,7 @@ void trotRun_FPC(Dog *dog, float speed_level)
     stage_bezier[leg] = &bezier_table[leg][stage_state[leg]];
   }
   dog_InitLegBezierBatch(dog, stage_state, stage_bezier);
+  dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act, 10);
 }
 
 void walk_FPC(Dog *dog)
@@ -1360,7 +1486,7 @@ void walk_FPC(Dog *dog)
   static const uint8_t stage_order[6] = {2, 2, 3, 3, 2, 2};
   static const bezierPoint ctrl_point[6][4] =
       {
-          {{0, 190.53f}, {40.0f, 60.0f}, {80.0f, 190.53f}, {100, 190.53f}},   // STEP_FORE1
+          {{0, 190.53f}, {50.0f, 230.0f}, {100.0f, 242.49f}, {100, 190.53f}}, // STEP_FORE1
           {{0, 190.53f}, {-40.0f, 270.0f}, {-80.0f, 190.53}, {99, 214}},      // KICK_BACK1
           {{-80.0f, 190.53f}, {-64, 100.0f}, {64, 100.0f}, {80.0f, 190.53f}}, // STEP_FORE2
           {{80.0f, 190.53f}, {64, 270.0f}, {-64.0f, 270.0f}, {-80, 190.53}},  // KICK_BACK2
@@ -1413,7 +1539,7 @@ void walk_FPC(Dog *dog)
     stage_bezier[leg] = &bezier_table[leg][stage_state[leg]];
   }
   dog_InitLegBezierBatch(dog, stage_state, stage_bezier);
-  dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act);
+  dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act, 10);
 
   dog_InitSingleLegBezier(dog, 2, STEP_FORE2, &bezier_table[2][STEP_FORE2]);
   dog_RunSingleLegBezierUntilFinish(dog, 2, fpc_Leg_Bezier_Act);
@@ -1434,7 +1560,7 @@ void walk_FPC(Dog *dog)
       stage_bezier[leg] = &bezier_table[leg][stage_state[leg]];
     }
     dog_InitLegBezierBatch(dog, stage_state, stage_bezier);
-    dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act);
+    dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act, 10);
     osDelay(100);
 
     dog_InitSingleLegBezier(dog, 3, STEP_FORE2, &bezier_table[3][STEP_FORE2]);
@@ -1454,7 +1580,7 @@ void walk_FPC(Dog *dog)
       stage_bezier[leg] = &bezier_table[leg][stage_state[leg]];
     }
     dog_InitLegBezierBatch(dog, stage_state, stage_bezier);
-    dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act);
+    dog_RunBezierBatch(dog, fpc_Leg_Bezier_Act, 10);
     osDelay(100);
 
     dog_InitSingleLegBezier(dog, 2, STEP_FORE2, &bezier_table[2][STEP_FORE2]);
@@ -1473,17 +1599,17 @@ void walk_FPC(Dog *dog)
   dog_InitLegBezierBatch(dog, stage_state, stage_bezier);
 }
 
-//void Trot_RotateJump_FPC(Dog *dog)
+// void Trot_RotateJump_FPC(Dog *dog)
 //{
-//  static const float stage_duration[6] = {0.1f, 0.1f, 0.2f, 0.2f, 0.2f, 0.2f};
-//  static const float stage_frequency[6] = {10.0f, 100.0f, 100.0f, 100.0f, 100.0f, 100.0f};
-//  static const uint8_t stage_order[6] = {2, 2, 3, 3, 2, 2};
-//  static const bezierPoint ctrl_point[6][4] =
-//      {
-//          {{0, 190.53f}, {40.0f, 60.0f}, {80.0f, 190.53f}, {100, 190.53f}},   // STEP_FORE1
-//          {{0, 190.53f}, {-40.0f, 270.0f}, {-80.0f, 190.53}, {99, 214}},      // KICK_BACK1
-//          {{-80.0f, 190.53f}, {-64, 100.0f}, {64, 100.0f}, {80.0f, 190.53f}}, // STEP_FORE2
-//          {{80.0f, 190.53f}, {64, 270.0f}, {-64.0f, 270.0f}, {-80, 190.53}},  // KICK_BACK2
+//   static const float stage_duration[6] = {0.1f, 0.1f, 0.2f, 0.2f, 0.2f, 0.2f};
+//   static const float stage_frequency[6] = {10.0f, 100.0f, 100.0f, 100.0f, 100.0f, 100.0f};
+//   static const uint8_t stage_order[6] = {2, 2, 3, 3, 2, 2};
+//   static const bezierPoint ctrl_point[6][4] =
+//       {
+//           {{0, 190.53f}, {40.0f, 60.0f}, {80.0f, 190.53f}, {100, 190.53f}},   // STEP_FORE1
+//           {{0, 190.53f}, {-40.0f, 270.0f}, {-80.0f, 190.53}, {99, 214}},      // KICK_BACK1
+//           {{-80.0f, 190.53f}, {-64, 100.0f}, {64, 100.0f}, {80.0f, 190.53f}}, // STEP_FORE2
+//           {{80.0f, 190.53f}, {64, 270.0f}, {-64.0f, 270.0f}, {-80, 190.53}},  // KICK_BACK2
 
 //          {{100.0f, 190.53f}, {50.0f, 270.0f}, {0, 190.53f}, {0, 0}},  // STEP_FORE_REBACK
 //          {{-100.0f, 190.53f}, {-50.0f, 150.0f}, {0, 190.53f}, {0, 0}} // KICK_BACK_REBACK

@@ -1,0 +1,16 @@
+remotecontroler\tasks.o: ../Middlewares/Third_Party/FreeRTOS/Source/tasks.c
+remotecontroler\tasks.o: D:\danpianji\ARM\ARMCC\Bin\..\include\stdlib.h
+remotecontroler\tasks.o: D:\danpianji\ARM\ARMCC\Bin\..\include\string.h
+remotecontroler\tasks.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
+remotecontroler\tasks.o: D:\danpianji\ARM\ARMCC\Bin\..\include\stddef.h
+remotecontroler\tasks.o: D:\danpianji\ARM\ARMCC\Bin\..\include\stdint.h
+remotecontroler\tasks.o: ../Core/Inc/FreeRTOSConfig.h
+remotecontroler\tasks.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h
+remotecontroler\tasks.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h
+remotecontroler\tasks.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/deprecated_definitions.h
+remotecontroler\tasks.o: ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F/portmacro.h
+remotecontroler\tasks.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/mpu_wrappers.h
+remotecontroler\tasks.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/task.h
+remotecontroler\tasks.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/list.h
+remotecontroler\tasks.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/timers.h
+remotecontroler\tasks.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/stack_macros.h

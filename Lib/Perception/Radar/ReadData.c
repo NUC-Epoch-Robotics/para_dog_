@@ -12,7 +12,8 @@
 #define TMP_BUF_SIZE 64
 #define LINE_BUF_SIZE 128
 #define RING_BUFFER_SIZE 512
-
+#define RADAR_M_TO_DM 10.0f
+osThreadId vcp_read_thread_id;
 uint8_t RingBuffer[RING_BUFFER_SIZE] = {0};
 static volatile uint16_t WriteIndex = 0;
 static volatile uint16_t ReadIndex = 0;
@@ -22,6 +23,11 @@ typedef enum
     FRAME_STATE_SEARCHING,
     FRAME_STATE_RECEIVING
 } frame_state_t;
+
+void VCP_ReadTask_Init(osThreadId thread_id)
+{
+    vcp_read_thread_id = thread_id;
+}
 
 void VCP_ResetRxBuffer(void)
 {
@@ -172,8 +178,13 @@ void VCP_ReadTask(void)
                 {
                     uint32_t x_uint = ((uint32_t)frame_buf[5] << 24) | ((uint32_t)frame_buf[4] << 16) | ((uint32_t)frame_buf[3] << 8) | (uint32_t)frame_buf[2];
                     uint32_t y_uint = ((uint32_t)frame_buf[9] << 24) | ((uint32_t)frame_buf[8] << 16) | ((uint32_t)frame_buf[7] << 8) | (uint32_t)frame_buf[6];
-                    memcpy(&msg.xdata, &x_uint, 4);
-                    memcpy(&msg.ydata, &y_uint, 4);
+                    float x_meter;
+                    float y_meter;
+                    memcpy(&x_meter, &x_uint, 4);
+                    memcpy(&y_meter, &y_uint, 4);
+                    msg.xdata = x_meter * RADAR_M_TO_DM;
+                    msg.ydata = y_meter * RADAR_M_TO_DM;
+                    
                 }
                 frame_len = 0;
                 frame_state = FRAME_STATE_SEARCHING;

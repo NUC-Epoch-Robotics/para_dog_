@@ -1,0 +1,14 @@
+remotecontroler\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/stream_buffer.c
+remotecontroler\stream_buffer.o: D:\danpianji\ARM\ARMCC\Bin\..\include\stdint.h
+remotecontroler\stream_buffer.o: D:\danpianji\ARM\ARMCC\Bin\..\include\string.h
+remotecontroler\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
+remotecontroler\stream_buffer.o: D:\danpianji\ARM\ARMCC\Bin\..\include\stddef.h
+remotecontroler\stream_buffer.o: ../Core/Inc/FreeRTOSConfig.h
+remotecontroler\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h
+remotecontroler\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h
+remotecontroler\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/deprecated_definitions.h
+remotecontroler\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F/portmacro.h
+remotecontroler\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/mpu_wrappers.h
+remotecontroler\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/task.h
+remotecontroler\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/list.h
+remotecontroler\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/stream_buffer.h

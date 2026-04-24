@@ -36,4 +36,4 @@ paralleldog_f429_test1\usart.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ha
 paralleldog_f429_test1\usart.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd.h
 paralleldog_f429_test1\usart.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h
 paralleldog_f429_test1\usart.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h
-paralleldog_f429_test1\usart.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stdio.h
+paralleldog_f429_test1\usart.o: C:\AppWorking\Keli5.43\ARM\ARMCC\include\stdio.h

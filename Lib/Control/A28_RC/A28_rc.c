@@ -4,11 +4,12 @@
 
 #define FRAME_HEAD 0x7E
 #define FRAME_TAIL 0x7F
-uint8_t lora_rx_byte;
+uint8_t lora_rx_byte=0;
 uint8_t lora_rx_buf[256];
 uint16_t lora_rx_len = 0;
 int16_t channel[4];   // 4个通道数据
 uint8_t key_state[8]; // 8个按键
+volatile uint32_t lora_uart_error_code = 0;
 
 /********************************************************
 函数名：  	Protocol_ReceiveHandler （协议接收数据包）
@@ -120,23 +121,38 @@ void A28_RC(Dog *dog)
         dog->state = STAND_UP_;
     }
 }
-/********************************************************
-函数名：  	HAL_UART_RxCpltCallback
-日期：    	2025.11.12
-功能：    	UART接收完成中断回调函数
-输入参数：		UART句柄指针
-返回值： 		无
-修改记录：
-**********************************************************/
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-    if (huart->Instance == USART3)
-    {
-        if (Protocol_ReceiveHandler(lora_rx_byte, lora_rx_buf, &lora_rx_len))
-        {
-            UnpackRockerAndKeys(lora_rx_buf, (uint16_t *)channel, key_state);
-        }
-        HAL_UART_Receive_IT(&huart3, &lora_rx_byte, 1);
-    }
-}
+// /********************************************************
+// 函数名：  	HAL_UART_RxCpltCallback
+// 日期：    	2025.11.12
+// 功能：    	UART接收完成中断回调函数
+// 输入参数：		UART句柄指针
+// 返回值： 		无
+// 修改记录：
+// **********************************************************/
+// void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+// {
+//     if (huart->Instance == USART3)
+//     {
+//         if (Protocol_ReceiveHandler(lora_rx_byte, lora_rx_buf, &lora_rx_len))
+//         {
+//             UnpackRockerAndKeys(lora_rx_buf, (uint16_t *)channel, key_state);
+//         }
+//         HAL_UART_Receive_IT(&huart3, &lora_rx_byte, 1);
+//     }
+// }
+// void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
+// {
+//     if (huart != &huart3)
+//     {
+//         return;
+//     }
+
+//     lora_uart_error_code = huart->ErrorCode;
+//     __HAL_UART_CLEAR_OREFLAG(huart);
+//     __HAL_UART_CLEAR_FEFLAG(huart);
+//     __HAL_UART_CLEAR_NEFLAG(huart);
+//     __HAL_UART_CLEAR_PEFLAG(huart);
+//     HAL_UART_AbortReceive(huart);
+//     HAL_UART_Receive_IT(&huart3, &lora_rx_byte, 1);
+// }
 /* USER CODE END 4 */

@@ -3,7 +3,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "dog.h"
-
 typedef enum BoxColor
 {
     BOX_COLOR_NONE,
@@ -25,6 +24,7 @@ typedef struct SupplyBox
     Coordinates box_position; // x/y-mm
     float box_size;
     BoxColor box_color;
+    bool picked;        // 1 for picked, 0 for not picked
     bool return_status; // 1 for returned, 0 for not returned
 } SupplyBox;
 typedef struct BoxGroup
@@ -32,6 +32,7 @@ typedef struct BoxGroup
     uint8_t group_id; // 0-3
     SupplyBox boxes[2];
     Coordinates pick_pos[2][2]; // [方向][顺序]，每个方向依次经过两个box的pick坐标
+    bool picked;        // 1 for picked, 0 for not picked
     bool return_status;
 } BoxGroup;
 typedef struct ReturnField
@@ -49,7 +50,7 @@ typedef struct WorldModel
     BoxGroup box_groups[4];
     ReturnField return_field[4];
 } WorldModel;
-
+extern WorldModel world;
 void world_init(WorldModel *world);
 
 #endif /* WORLD_H */

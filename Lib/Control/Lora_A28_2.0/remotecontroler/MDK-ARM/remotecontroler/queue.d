@@ -1,0 +1,15 @@
+remotecontroler\queue.o: ../Middlewares/Third_Party/FreeRTOS/Source/queue.c
+remotecontroler\queue.o: D:\danpianji\ARM\ARMCC\Bin\..\include\stdlib.h
+remotecontroler\queue.o: D:\danpianji\ARM\ARMCC\Bin\..\include\string.h
+remotecontroler\queue.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
+remotecontroler\queue.o: D:\danpianji\ARM\ARMCC\Bin\..\include\stddef.h
+remotecontroler\queue.o: D:\danpianji\ARM\ARMCC\Bin\..\include\stdint.h
+remotecontroler\queue.o: ../Core/Inc/FreeRTOSConfig.h
+remotecontroler\queue.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h
+remotecontroler\queue.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h
+remotecontroler\queue.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/deprecated_definitions.h
+remotecontroler\queue.o: ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F/portmacro.h
+remotecontroler\queue.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/mpu_wrappers.h
+remotecontroler\queue.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/task.h
+remotecontroler\queue.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/list.h
+remotecontroler\queue.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h

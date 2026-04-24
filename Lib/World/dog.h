@@ -10,7 +10,7 @@
 #include "task_switch.h"
 #include "planning.h"
 #define RC_MODE 0
-#define AUTO_OFFROAD 1
+#define AUTO_MODE 1
 typedef enum leg_state_
 { // 单腿状态枚举 每个动作的第一阶段状态必须为0
 	STAND_UP = 0,
@@ -118,6 +118,8 @@ typedef struct DogLocation
 {
 	Coordinates pos; // x,y位置
 	float yaw;		 // 偏航角
+    float roll;
+    float pitch;
 } DogLocation;
 typedef struct COLLECTION_BOX
 {
@@ -126,8 +128,8 @@ typedef struct COLLECTION_BOX
 } CollectionBox;
 typedef struct Dog
 {
-	mission_type mission;
-	plan_t plan;
+	TaskTreeContext g_task_ctx;
+	PlanContext plan;
 	DogLocation location;
 	DogLocation target_location; // 目标点坐标
 	dog_state state;
@@ -135,8 +137,7 @@ typedef struct Dog
 	uint8_t dog_mode; //
 
 } Dog;
-void task_switch(struct Dog *dog, struct BoxGroup (*box_groups)[4], struct ReturnField (*return_field)[4]);
-void task_switch_reset(void);
 
 void dog_Planning(Dog *dog);
+
 #endif // PARALLELDOG_F429_TEST1_DOG_H

@@ -1,59 +1,16 @@
 #include "world.h"
 #include "cmsis_os.h"
+#include "string.h"
 
-typedef enum BtStatus
+void task_switch_reset(TaskTreeContext *ctx)
 {
-    BT_FAILURE = 0,
-    BT_SUCCESS = 1,
-    BT_RUNNING = 2
-} BtStatus;
-
-typedef struct TaskTreeContext
-{
-    uint8_t phase;
-    uint8_t has_target;
-    uint8_t group_index;
-    uint8_t pick_index;
-    uint8_t pick_step;
-    uint8_t picked_count;
-    uint8_t fail_count[4][2];
-    uint32_t navigate_start_tick;
-    uint32_t group_start_tick;
-} TaskTreeContext;
-
-static TaskTreeContext g_task_tree_ctx;
+    memset(ctx, 0, sizeof(TaskTreeContext));
+}
 
 static void TaskTreeClearTarget(TaskTreeContext *ctx)
 {
-    ctx->has_target = 0U;
-    ctx->group_index = 0U;
-    ctx->pick_index = 0U;
-    ctx->pick_step = 0U;
-    ctx->picked_count = 0U;
-    ctx->navigate_start_tick = 0U;
-    ctx->group_start_tick = 0U;
-}
-
-static uint8_t TaskTreeGetBoxIndexByDirectionStep(uint8_t direction, uint8_t step)
-{
-    if (direction == BOX_PICK_FRONT_TO_BACK)
-    {
-        return step;
-    }
-    return (uint8_t)(1U - step);
-}
-
-void task_switch_reset(void)
-{
-    g_task_tree_ctx.phase = 0U;
-    for (uint8_t i = 0; i < 4U; i++)
-    {
-        for (uint8_t p = 0; p < 2U; p++)
-        {
-            g_task_tree_ctx.fail_count[i][p] = 0U;
-        }
-    }
-    TaskTreeClearTarget(&g_task_tree_ctx);
+    ctx->seekbox_ctx.has_target = false;
+    ctx->seekbox_ctx.navigate_stage.is_navigating = false;
 }
 
 static BtStatus TaskTreeSelectSeekTarget(Dog *dog, BoxGroup (*box_groups)[4], TaskTreeContext *ctx)
@@ -65,7 +22,7 @@ static BtStatus TaskTreeSelectSeekTarget(Dog *dog, BoxGroup (*box_groups)[4], Ta
 
     for (uint8_t i = 0U; i < 4U; i++)
     {
-        if ((*box_groups)[i].return_status)
+        if ((*box_groups)[i].picked)
         {
             continue;
         }
@@ -93,164 +50,231 @@ static BtStatus TaskTreeSelectSeekTarget(Dog *dog, BoxGroup (*box_groups)[4], Ta
         return BT_FAILURE;
     }
 
-    ctx->has_target = 1U;
-    ctx->group_index = best_group;
-    ctx->pick_index = best_pick;
-    ctx->pick_step = 0U;
-    ctx->picked_count = 0U;
-    ctx->navigate_start_tick = osKernelSysTick();
-    ctx->group_start_tick = ctx->navigate_start_tick;
-
-    dog->target_location.pos = (*box_groups)[best_group].pick_pos[best_pick][0];
-    dog->plan.type = POINT_TO_POINT;
-    dog->plan.finish_flag = false;
-
-    return BT_SUCCESS;
+    ctx->seekbox_ctx.has_target = true;
+    ctx->seekbox_ctx.group_index = best_group;
+    ctx->seekbox_ctx.pick_box_stage.pick_index = best_pick;
+    ctx->seekbox_ctx.pick_box_stage.pick_step = 0U;
+    ctx->seekbox_ctx.pick_box_stage.picked_count = 0U;
+    return BT_SUCCESS; // 找到目标，进入导航阶段
 }
 
 static BtStatus TaskTreePickCurrentBox(Dog *dog, BoxGroup *target_group, TaskTreeContext *ctx)
 {
-    uint8_t box_index = TaskTreeGetBoxIndexByDirectionStep(ctx->pick_index, ctx->pick_step);
-
-    if (!target_group->boxes[box_index].return_status)
+    uint32_t now = osKernelSysTick(); // 当前时间，用于超时处理
+    if (!ctx->seekbox_ctx.has_target)
     {
-        target_group->boxes[box_index].return_status = true;
-        if (ctx->picked_count < 2U)
+        return BT_FAILURE; // 没有目标，无法拾取
+    }
+    if (!ctx->seekbox_ctx.navigate_stage.is_navigating)
+    {
+        dog->plan.type = PICK_UP; // 进入拾取阶段，planning模块将根据当前目标位置和箱体状态进行拾取控制
+        ctx->seekbox_ctx.pick_box_stage.pick_start_tick = osKernelSysTick();
+        return BT_RUNNING; // 拾取阶段进行中
+    }
+    else if (ctx->seekbox_ctx.navigate_stage.is_navigating)
+    {
+        if (dog->plan.finish_flag == true) // 拾取完成，更新状态并进入下一个子任务
         {
-            ctx->picked_count++;
+            dog->plan.finish_flag = false;                          // 置否，防止重复进入下一个子任务
+            ctx->seekbox_ctx.pick_box_stage.picked_count++;         // 成功拾取一个箱子，增加已拾取数量
+            if (ctx->seekbox_ctx.pick_box_stage.picked_count >= 2U) // 已经成功拾取两个箱子，认为组内任务完成，进入运输阶段
+            {
+                target_group->picked = 1U; // 更新箱体状态为已拾取，影响后续目标选择和任务流程
+            }
+            if (ctx->seekbox_ctx.pick_box_stage.pick_step == 0U) // 成功拾取第一个箱子，准备进入第二个箱子拾取阶段
+            {
+                ctx->seekbox_ctx.pick_box_stage.pick_step = 1U;        // 进入第二个箱子拾取阶段
+                ctx->subtask = SEEK_NAVIGATE_TO_TARGET;                // 进入导航阶段，准备导航到第二个箱子位置
+                ctx->seekbox_ctx.navigate_stage.is_navigating = false; // 重置任务运行状态
+                return BT_RUNNING;
+            }
+            if (ctx->seekbox_ctx.pick_box_stage.pick_step == 1U) // 已经完成第二个箱子的拾取，准备进入第二个箱子拾取阶段
+            {
+                ctx->seekbox_ctx.navigate_stage.is_navigating = false; // 重置任务运行状态，准备进入下一个子任务
+                return BT_SUCCESS;
+            }
         }
+        // 超时处理
     }
-
-    dog->mission = PICK_UP_BOX;
-
-    target_group->return_status = target_group->boxes[0].return_status &&
-                                  target_group->boxes[1].return_status;
-
-    if (target_group->return_status)
-    {
-        return BT_SUCCESS;
-    }
-
-    return BT_RUNNING;
+    return BT_FAILURE; // 拾取阶段进行中
 }
-
 static BtStatus TaskTreeNavigateSeekTarget(Dog *dog, BoxGroup (*box_groups)[4], TaskTreeContext *ctx)
 {
-    BoxGroup *target_group;
     uint32_t now = osKernelSysTick();
-    BtStatus pick_status;
 
-    if (!ctx->has_target)
+    if (!ctx->seekbox_ctx.has_target)
     {
-        return BT_FAILURE;
+        TaskTreeClearTarget(ctx);          // 清除当前目标状态，准备进入下一个子任务
+        ctx->subtask = SEEK_SELECT_TARGET; // 没有目标，回到选择目标阶段
+        return BT_FAILURE;                 // 没有目标，无法导航
     }
-
-    target_group = &(*box_groups)[ctx->group_index];
-
     // 组内超时：若已拾取至少1个箱子，直接进入运输阶段
-    if ((now - ctx->group_start_tick) > 20000U)
+    if (ctx->seekbox_ctx.navigate_stage.is_navigating && ((now - ctx->seekbox_ctx.navigate_stage.navigate_start_tick) > 100000U)) // 正在导航过程中，持续检查是否超时
     {
-        if (ctx->picked_count > 0U)
+        if (ctx->seekbox_ctx.pick_box_stage.picked_count > 0U) // 已经成功拾取至少1个箱子，认为组内任务完成，进入运输阶段
         {
-            target_group->return_status = target_group->boxes[0].return_status &&
-                                          target_group->boxes[1].return_status;
-            return BT_SUCCESS;
-        }
-
-        if (ctx->fail_count[ctx->group_index][ctx->pick_index] < 10U)
-        {
-            ctx->fail_count[ctx->group_index][ctx->pick_index]++;
-        }
-        TaskTreeClearTarget(ctx);
-        dog->plan.type = IDLE_;
-        return BT_RUNNING;
-    }
-
-    if (dog->plan.finish_flag) // 到达当前箱子位置后立即执行拾取
-    {
-        pick_status = TaskTreePickCurrentBox(dog, target_group, ctx);
-        if (pick_status == BT_SUCCESS)
-        {
-            return BT_SUCCESS;
-        }
-
-        if (ctx->pick_step == 0U)
-        {
-            ctx->pick_step = 1U;
-            dog->target_location.pos = target_group->pick_pos[ctx->pick_index][1];
-            dog->plan.type = POINT_TO_POINT;
-            dog->plan.finish_flag = false;
-            ctx->navigate_start_tick = now;
+            ctx->seekbox_ctx.navigate_stage.is_navigating = false; // 导航结束，重置导航状态，进入下一个子任务
+            ctx->mission = DELIVER_BOX;                            // 直接进入交付阶段，跳过后续的导航和拾取子任务
+            
             return BT_RUNNING;
         }
-
-        return (ctx->picked_count > 0U) ? BT_SUCCESS : BT_RUNNING;
+        return BT_FAILURE;
     }
-
-    return BT_RUNNING;
+    else if (!ctx->seekbox_ctx.navigate_stage.is_navigating) // 有目标，但还未开始导航，先设置目标位置并进入导航状态
+    {
+        if (ctx->seekbox_ctx.pick_box_stage.pick_step == 0U) // 如果是第一个箱子位置
+        {
+            dog->target_location.pos = (*box_groups)[ctx->seekbox_ctx.group_index].pick_pos[ctx->seekbox_ctx.pick_box_stage.pick_index][0]; // 设置目标位置为当前目标箱子位置，planning模块将根据这个目标位置进行路径规划和运动控制
+            dog->plan.type = POINT_TO_POINT;                                                                                                // 改变plan类型，进入规划阶段，后续由planning模块根据目标位置规划路径并控制运动
+            ctx->seekbox_ctx.navigate_stage.is_navigating = true;
+            ctx->seekbox_ctx.navigate_stage.navigate_start_tick = osKernelSysTick(); // 更新记录导航开始时间，影响后续超时处理
+            return BT_RUNNING;
+        }
+        else if (ctx->seekbox_ctx.pick_box_stage.pick_step == 1U) // 如果是第二个箱子位置
+        {
+            dog->target_location.pos = (*box_groups)[ctx->seekbox_ctx.group_index].pick_pos[ctx->seekbox_ctx.pick_box_stage.pick_index][1]; // 设置目标位置为当前目标箱子位置，planning模块将根据这个目标位置进行路径规划和运动控制
+            dog->plan.type = POINT_TO_POINT;
+            ctx->seekbox_ctx.navigate_stage.is_navigating = true;
+            ctx->seekbox_ctx.navigate_stage.navigate_start_tick = osKernelSysTick(); // 更新记录导航开始时间，影响后续超时处理
+            return BT_RUNNING;
+        }
+    }
+    else if (ctx->seekbox_ctx.navigate_stage.is_navigating) // 已经在导航中，持续检查导航状态
+    {
+        if (dog->plan.finish_flag == true && dog->plan.type == POINT_TO_POINT) // 导航已完成，返回成功状态，进入下一个子任务
+        {
+            dog->plan.finish_flag = false;                       // 置否，防止重复进入下一个子任务
+            dog->plan.type = IDLE_;                              // 导航完成，重置plan类型，准备进入下一个子任务
+            if (ctx->seekbox_ctx.pick_box_stage.pick_step == 0U) // 成功导航到第一个箱子位置，准备进入第一个箱子拾取阶段
+            {
+                return BT_SUCCESS;
+            }
+            else if (ctx->seekbox_ctx.pick_box_stage.pick_step == 1U) // 成功导航到第二个箱子位置，准备进入第二个箱子拾取阶段
+            {
+                return BT_SUCCESS;
+            }
+        }
+        return BT_RUNNING;
+    }
+    return BT_FAILURE; // 持续导航中
 }
 
 static BtStatus SeekBoxTreeTick(Dog *dog, BoxGroup (*box_groups)[4], TaskTreeContext *ctx)
 {
     BtStatus status;
-
-    if (ctx->has_target == 0U)
+    switch (ctx->subtask)
     {
-        status = TaskTreeSelectSeekTarget(dog, box_groups, ctx);
-        if (status == BT_FAILURE)
+    case SEEK_SELECT_TARGET:
+        // Implementation for selecting target
+        status = TaskTreeSelectSeekTarget(dog, box_groups, ctx); // 是否成功选择目标
+        if (status == BT_SUCCESS)
         {
+            ctx->subtask = SEEK_NAVIGATE_TO_TARGET; // 选择目标成功，进入导航阶段
+            return BT_RUNNING;
+        }
+        else if (status == BT_FAILURE)
+        {
+            return BT_FAILURE; // 没有目标可选，整个寻箱阶段失败，重置任务树准备重新选择目标
+        }
+        break;
+    case SEEK_NAVIGATE_TO_TARGET:
+        // Implementation for navigating to target
+        status = TaskTreeNavigateSeekTarget(dog, box_groups, ctx); // 是否成功导航到目标位置
+        if (status == BT_RUNNING)
+        {
+            return BT_RUNNING;
+        }
+        else if (status == BT_SUCCESS)
+        {
+            ctx->subtask = SEEK_PICK_BOX;                          // 导航成功，进入拾取阶段
+            ctx->seekbox_ctx.navigate_stage.is_navigating = false; // 重置运行状态
+            return BT_RUNNING;
+        }
+        else if (status == BT_FAILURE)
+        {
+            ctx->fail_count[ctx->seekbox_ctx.group_index][ctx->seekbox_ctx.pick_box_stage.pick_index]++; // 导航失败，增加失败次数，影响后续目标选择
+            ctx->seekbox_ctx.navigate_stage.is_navigating = false;                                       // 重置导航状态
             return BT_FAILURE;
         }
+        break;
+    case SEEK_PICK_BOX:
+        // Implementation for picking box
+        status = TaskTreePickCurrentBox(dog, &(*box_groups)[ctx->seekbox_ctx.group_index], ctx);
+        if (status == BT_SUCCESS)
+        {
+            if (ctx->seekbox_ctx.pick_box_stage.picked_count == 2U)
+            {
+                ctx->seekbox_ctx.navigate_stage.is_navigating = false;
+                return BT_SUCCESS;
+            }
+            else
+            {
+                ctx->subtask = SEEK_NAVIGATE_TO_TARGET;                // 成功拾取当前箱子，准备进入下一个箱子导航阶段
+                ctx->seekbox_ctx.navigate_stage.is_navigating = false; // 重置运行状态，准备进入下一个子任务
+                return BT_RUNNING;
+            }
+        }
+        else if (status == BT_RUNNING)
+        {
+            return BT_RUNNING;
+        }
+        else if (status == BT_FAILURE)
+        {
+            ctx->fail_count[ctx->seekbox_ctx.group_index][ctx->seekbox_ctx.pick_box_stage.pick_index]++; // 导航失败，增加失败次数，影响后续目标选择
+            ctx->seekbox_ctx.navigate_stage.is_navigating = false;                                       // 重置导航状态
+            return BT_FAILURE;
+        }
+        break;
     }
-
-    status = TaskTreeNavigateSeekTarget(dog, box_groups, ctx);
-    if (status == BT_SUCCESS)
-    {
-        return BT_SUCCESS;
-    }
-    if (status == BT_FAILURE)
-    {
-        return BT_FAILURE;
-    }
-
-    return BT_RUNNING;
+    return BT_FAILURE; // 默认返回失败，实际情况应该根据具体实现调整
 }
 
 static BtStatus DeliverTreeTick(Dog *dog, ReturnField (*return_field)[4], TaskTreeContext *ctx)
 {
     (void)return_field;
     (void)ctx;
-    dog->mission = DELIVER_BOX;
+    dog->g_task_ctx.mission = DELIVER_BOX;
     // 预留：根据颜色选择 return_field 并规划路径
     return BT_SUCCESS;
 }
 
 static BtStatus RootTaskTreeTick(Dog *dog, BoxGroup (*box_groups)[4], ReturnField (*return_field)[4], TaskTreeContext *ctx)
 {
-    if (ctx->phase == 0U)
+    if (dog->g_task_ctx.mission == SEEK_BOX) // 寻箱阶段
     {
-        dog->mission = SEEK_BOX;
-        if (SeekBoxTreeTick(dog, box_groups, ctx) == BT_SUCCESS) // SEEKBOX + PICKUPBOX
+        BtStatus seek_status = SeekBoxTreeTick(dog, box_groups, ctx);
+        if (seek_status == BT_RUNNING)
         {
-            TaskTreeClearTarget(ctx);
-            ctx->phase = 1U;
+            return BT_RUNNING; // 寻箱阶段进行中
         }
-        return BT_RUNNING;
+        else if (seek_status == BT_SUCCESS) // SEEKBOX + PICKUPBOX
+        {
+            dog->g_task_ctx.mission = DELIVER_BOX;
+        }
+        else if (seek_status == BT_FAILURE)
+        {
+            return BT_FAILURE;
+        }
     }
 
-    if (ctx->phase == 1U)
+    else if (dog->g_task_ctx.mission == DELIVER_BOX) // 交付阶段
     {
-        dog->mission = DELIVER_BOX;
-        if (DeliverTreeTick(dog, return_field, ctx) == BT_SUCCESS) // DELIVERBOX
-        {
-            ctx->phase = 0U;
-            dog->mission = SEEK_BOX;
-        }
-        return BT_RUNNING;
+        // BtStatus deliver_status = DeliverTreeTick(dog, return_field, ctx);
+        //        if(deliver_status ==BT_RUNNING)
+        //        {
+        //            return BT_RUNNING; // 交付阶段进行中
+        //        }
+        // else if (deliver_status == BT_SUCCESS) // DELIVERBOX
+        // {
+        //     task_switch_reset(); // 交付完成，重置任务树准备下一轮任务
+        //     return BT_SUCCESS;
+        // }
+        // else if (deliver_status == BT_FAILURE)
+        // {
+        //     return BT_FAILURE;
+        // }
     }
-
-    ctx->phase = 0U;
-    dog->mission = SEEK_BOX;
+    dog->g_task_ctx.mission = SEEK_BOX;
     return BT_RUNNING;
 }
 
@@ -261,15 +285,16 @@ void task_switch(Dog *dog, BoxGroup (*box_groups)[4], ReturnField (*return_field
         return;
     }
 
-    if (dog->mission == IDLE)
+    if (dog->g_task_ctx.mission == IDLE) // 如果当前是空闲状态，进入任务树从seek_box阶段开始执行
     {
-        task_switch_reset();
-        dog->mission = SEEK_BOX;
+        task_switch_reset(&dog->g_task_ctx);
+        dog->g_task_ctx.mission = SEEK_BOX;
     }
 
-    if (RootTaskTreeTick(dog, box_groups, return_field, &g_task_tree_ctx) == BT_FAILURE)
+    if (RootTaskTreeTick(dog, box_groups, return_field, &dog->g_task_ctx) == BT_FAILURE)
     {
-        dog->mission = IDLE;
-        task_switch_reset();
+        dog->g_task_ctx.mission = IDLE; //
+        dog->plan.type = IDLE_;
+        task_switch_reset(&dog->g_task_ctx); // 某一环节失败，重置任务树
     }
 }

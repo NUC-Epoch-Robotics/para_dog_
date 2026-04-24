@@ -1,0 +1,12 @@
+remotecontroler\port.o: ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F/port.c
+remotecontroler\port.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
+remotecontroler\port.o: D:\danpianji\ARM\ARMCC\Bin\..\include\stddef.h
+remotecontroler\port.o: D:\danpianji\ARM\ARMCC\Bin\..\include\stdint.h
+remotecontroler\port.o: ../Core/Inc/FreeRTOSConfig.h
+remotecontroler\port.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h
+remotecontroler\port.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h
+remotecontroler\port.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/deprecated_definitions.h
+remotecontroler\port.o: ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F/portmacro.h
+remotecontroler\port.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/mpu_wrappers.h
+remotecontroler\port.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/task.h
+remotecontroler\port.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/list.h

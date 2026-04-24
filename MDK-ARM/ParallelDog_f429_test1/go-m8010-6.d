@@ -39,4 +39,4 @@ paralleldog_f429_test1\go-m8010-6.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4
 paralleldog_f429_test1\go-m8010-6.o: ..\Lib\Control\GO_M8010\motor_control.h
 paralleldog_f429_test1\go-m8010-6.o: ..\Lib\Control\GO_M8010\ris_protocol.h
 paralleldog_f429_test1\go-m8010-6.o: ..\Lib\Control\GO_M8010\crc_ccitt.h
-paralleldog_f429_test1\go-m8010-6.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stdio.h
+paralleldog_f429_test1\go-m8010-6.o: C:\AppWorking\Keli5.43\ARM\ARMCC\include\stdio.h

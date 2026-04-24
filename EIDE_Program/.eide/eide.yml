@@ -144,8 +144,14 @@ targets:
         - ../Lib/Mission
         - ../Lib/Planning
         - ../Lib/Control/A28_RC
+        - ../Lib/Control/Vofa
+        - ../Lib/Control/Lora_A28_2.0/remotecontroler
+        - ../Lib/Control/Lora_A28_2.0
       libList: []
-    excludeList: []
+    excludeList:
+      - ../Lib/Control/Lora_A28_2.0/remotecontroler
+    settings:
+      debugger: cortex-debug
     toolchain: AC5
     toolchainConfigMap:
       AC5:

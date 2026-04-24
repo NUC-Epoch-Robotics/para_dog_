@@ -77,7 +77,7 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+ HAL_Init();
 
   /* USER CODE BEGIN Init */
 
@@ -114,7 +114,6 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 while (1){
-
 	HAL_Delay(100);
     /* USER CODE END WHILE */
 

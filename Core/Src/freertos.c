@@ -39,6 +39,7 @@
 #include "vofa_Debug.h"
 #include "A28_RC.h"
 #include "world.h"
+#include "app_remote_rx.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -49,7 +50,13 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define DOG_SWITCH RC_MODE
-
+#define Signal_DogInitOK (1U << 0)
+#define Signal_WorldInitOK (1U << 1)
+#define STACK_WORDS_DEFAULT_TASK 256U
+#define STACK_WORDS_CALCULATE_TASK 1024U
+#define STACK_WORDS_REMOTE_TASK 512U
+#define STACK_WORDS_PLANNING_TASK 512U
+#define STACK_WORDS_SENSOR_TASK 512U
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -64,10 +71,13 @@ uint8_t Rx_Temp[10] = {0};
 static imu_kalman_t g_imu_kf;
 unsigned char buf[64] = {0};
 extern wit_t hwt_angle;
-extern uint8_t lora_rx_byte;
+extern uint8_t lora_rx_byte[10];
 extern vcp_message_t msg;
+extern uint8_t vofa_rx_frame[6];
+extern uint8_t process_buf[RX_BUF_SIZE];
+extern uint16_t process_len;
 CAN_RxHeaderTypeDef RxHeader;
-osThreadId AutoModeTaskHandle;
+osThreadId SensorTaskHandle;
 osThreadId CalculateTaskHandle;
 osThreadId RemoteContrlTaskHandle;
 osThreadId TargetSwitchTaskHandle;
@@ -80,11 +90,12 @@ osThreadId defaultTaskHandle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
-void AutoMode(void const *argument);
+void Sensor(void const *argument);
 void calculateFunc(void const *argument);
 void RC_Ctrl(void const *argument);
 void TargetSwitch(void const *argument);
 void Planning(void const *argument);
+static void PrintTaskStackUsage(void);
 /* USER CODE END FunctionPrototypes */
 
 void StartDefaultTask(void const *argument);
@@ -138,7 +149,7 @@ void MX_FREERTOS_Init(void)
 
   /* Create the thread(s) */
   /* definition and creation of defaultTask */
-  osThreadDef(defaultTask, StartDefaultTask, osPriorityAboveNormal, 0, 512);
+  osThreadDef(defaultTask, StartDefaultTask, osPriorityAboveNormal, 0, 256);
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
@@ -147,17 +158,17 @@ void MX_FREERTOS_Init(void)
   CalculateTaskHandle = osThreadCreate(osThread(CalculateTask), NULL);
 #if DOG_SWITCH == RC_MODE
   world.dog.dog_mode = RC_MODE;
-  osThreadDef(RemoteContrlTask, RC_Ctrl, osPriorityNormal, 0, 256);
+  osThreadDef(RemoteContrlTask, RC_Ctrl, osPriorityNormal, 0, 512);
   RemoteContrlTaskHandle = osThreadCreate(osThread(RemoteContrlTask), NULL);
-#elif DOG_SWITCH == AUTO_OFFROAD
-  world.dog.dog_mode = AUTO_OFFROAD;
-  osThreadDef(AutoModeTask, AutoMode, osPriorityNormal, 0, 512);
-  AutoModeTaskHandle = osThreadCreate(osThread(AutoModeTask), NULL);
+#elif DOG_SWITCH == AUTO_MODE
+  world.dog.dog_mode = AUTO_MODE;
+  // osThreadDef(TargetSwitchTask, TargetSwitch, osPriorityNormal, 0, 512);
+  // TargetSwitchTaskHandle = osThreadCreate(osThread(TargetSwitchTask), NULL);
+  osThreadDef(PlanningTask, Planning, osPriorityNormal, 0, 512);
+  PlanningTaskHandle = osThreadCreate(osThread(PlanningTask), NULL);
 #endif
-  //  osThreadDef(TargetSwitchTask, TargetSwitch, osPriorityNormal, 0, 512);
-  //  TargetSwitchTaskHandle = osThreadCreate(osThread(TargetSwitchTask), NULL);
-  //  osThreadDef(PlanningTask, Planning, osPriorityNormal, 0, 512);
-  //  PlanningTaskHandle = osThreadCreate(osThread(PlanningTask), NULL);
+  osThreadDef(SensorTask, Sensor, osPriorityNormal, 0, 512);
+  SensorTaskHandle = osThreadCreate(osThread(SensorTask), NULL);
 
   /* USER CODE END RTOS_THREADS */
 }
@@ -174,27 +185,13 @@ void StartDefaultTask(void const *argument)
   /* init code for USB_DEVICE */
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN StartDefaultTask */
-  hwt605_Init(); // IMU初始化
   world_init(&world);
-  HAL_UART_Receive_IT(&huart3, &lora_rx_byte, 1);
+  osSignalSet(CalculateTaskHandle, Signal_WorldInitOK);
+  vTaskSuspend(NULL);
   /* Infinite loop */
   for (;;)
   {
-    UBaseType_t hwm_words = uxTaskGetStackHighWaterMark(NULL);
-    if (hwm_words < g_defaultTaskMinHwmWords)
-    {
-      g_defaultTaskMinHwmWords = hwm_words;
-    }
-    g_defaultTaskSampleCnt++;
-    //       HAL_UART_Transmit(&huart2,&d,sizeof(d),100);
-    printf("%.2f,%.2f\n", msg.xdata, msg.ydata);
-    if ((g_defaultTaskSampleCnt % 10u) == 0u)
-    {
-      printf("defaultTask min hwm: %lu words (%lu bytes)\n",
-             (unsigned long)g_defaultTaskMinHwmWords,
-             (unsigned long)(g_defaultTaskMinHwmWords * sizeof(StackType_t)));
-    }
-    VCP_ReadTask();
+    // printf("%.2f\n",hwt_angle.fYaw);
     osDelay(100);
   }
   /* USER CODE END StartDefaultTask */
@@ -212,13 +209,26 @@ void StartDefaultTask(void const *argument)
 void calculateFunc(void const *argument)
 {
   /* USER CODE BEGIN calculateFunc */
-  osDelay(2000);
-  Dog_ParaInit(&world.dog);
+  osSignalWait(Signal_WorldInitOK, osWaitForever);
+#if DOG_SWITCH == AUTO_MODE
+  osSignalWait(VCP_SIGNAL, osWaitForever); // 等待VCP初始化完成
+  standUP_FPC(&world.dog, 216.5f);
+  if (PlanningTaskHandle != NULL)
+  {
+    osSignalSet(PlanningTaskHandle, Signal_DogInitOK);
+  }
+  if (TargetSwitchTaskHandle != NULL)
+  {
+    osSignalSet(TargetSwitchTaskHandle, Signal_DogInitOK);
+  }
+#elif (DOG_SWITCH == RC_MODE)
+  standUP_FPC(&world.dog, 216.5f);
+#endif
   /* Infinite loop */
   for (;;)
   {
     dogTaskCtrl(&world.dog);
-    osDelay(5);
+    osDelay(1);
   }
   /* USER CODE END calculateFunc */
 }
@@ -234,46 +244,147 @@ void RC_Ctrl(void const *argument)
 {
   /* USER CODE BEGIN RC_Ctrl */
 
+  vofa_init(&huart2);
+  HAL_UART_Receive_IT(&huart2, vofa_rx_frame, 6);
+  // uint8_t local_buf[RX_BUF_SIZE];
+  // uint16_t local_len = 0;
+
+  // app_remote_rx_init(&huart3);
+  // app_remote_rx_start();
+  // app_remote_thread(RemoteContrlTaskHandle);
   /* Infinite loop */
   for (;;)
   {
-    A28_RC(&world.dog);
+    vofa_GetData(vofa_rx_frame);
+    vofa_rc(&world.dog);
+    // for (uint8_t leg = 0; leg < 4; leg++)
+    // {
+    //   printf("%.2f,%.2f,%.2f\n", world.dog.leg[leg].motor_ctrl_linkf.cmd.T, world.dog.leg[leg].motor_ctrl_linkb.cmd.T, world.dog.leg[leg].motor_ctrl_linkf.cmd.Pos);
+    // }
     osDelay(100);
   }
+
   /* USER CODE END RC_Ctrl */
 }
 
-void AutoMode(void const *argument)
+void Sensor(void const *argument)
 {
-  imu_kalman_init(&g_imu_kf, 0.03f, 0.1f);
-  uint32_t now;
-  uint32_t last_tick = osKernelSysTick();
+
+  hwt605_Init(); // IMU初始化
+#if DOG_SWITCH == AUTO_MODE
+  uint8_t drain_rounds;
+  uint32_t now_tick;
+  uint32_t last_stack_log_tick;
+  VCP_ReadTask_Init(osThreadGetId());
+  osEvent evt = osSignalWait(VCP_SIGNAL, osWaitForever);
+  if (evt.status == osEventSignal && (evt.value.signals & VCP_SIGNAL))
+  {
+    osSignalSet(CalculateTaskHandle, VCP_SIGNAL);
+  }
+  last_stack_log_tick = osKernelSysTick();
+#endif
+
   for (;;)
   {
-    now = osKernelSysTick();
-    float dt = (now - last_tick) * 0.001f; // ms -> s
-    last_tick = now;
-    if (dt > 0.0f)
+#if DOG_SWITCH == AUTO_MODE
+    evt = osSignalWait(VCP_SIGNAL, osWaitForever);
+    if (evt.status == osEventSignal && (evt.value.signals & VCP_SIGNAL))
     {
-      imu_kalman_step_from_hwt(&g_imu_kf, &hwt_angle, dt);
-      world.dog.location.yaw = imu_kalman_get_angle_deg(&g_imu_kf, 2);
-      last_tick = osKernelSysTick();
+      drain_rounds = 0U;
+      do
+      {
+        VCP_ReadTask();
+        drain_rounds++;
+      } while ((VCP_GetRxCount() > 0U) && (drain_rounds < 10U));
+      world.dog.location.pos.x = msg.xdata;
+      world.dog.location.pos.y = msg.ydata;
+      now_tick = osKernelSysTick();
+      if ((now_tick - last_stack_log_tick) >= 2000U)
+      {
+        PrintTaskStackUsage();
+        last_stack_log_tick = now_tick;
+      }
     }
-    printf("%f,%f\n", hwt_angle.fYaw, world.dog.location.yaw);
+#endif
+    printf("%.2f,%.2f,%.2f\n", world.dog.location.roll, world.dog.location.pitch, world.dog.location.yaw);
     osDelay(100);
   }
+}
+
+static void PrintTaskStackUsage(void)
+{
+  UBaseType_t free_words;
+  uint32_t free_bytes;
+  uint32_t cfg_bytes;
+  uint32_t used_bytes;
+
+  if (defaultTaskHandle != NULL)
+  {
+    free_words = uxTaskGetStackHighWaterMark((TaskHandle_t)defaultTaskHandle);
+    free_bytes = (uint32_t)free_words * sizeof(StackType_t);
+    cfg_bytes = STACK_WORDS_DEFAULT_TASK * sizeof(StackType_t);
+    used_bytes = (cfg_bytes >= free_bytes) ? (cfg_bytes - free_bytes) : 0U;
+    printf("[STACK] default used=%luB free_min=%luB cfg=%luB\r\n", used_bytes, free_bytes, cfg_bytes);
+  }
+
+  if (CalculateTaskHandle != NULL)
+  {
+    free_words = uxTaskGetStackHighWaterMark((TaskHandle_t)CalculateTaskHandle);
+    free_bytes = (uint32_t)free_words * sizeof(StackType_t);
+    cfg_bytes = STACK_WORDS_CALCULATE_TASK * sizeof(StackType_t);
+    used_bytes = (cfg_bytes >= free_bytes) ? (cfg_bytes - free_bytes) : 0U;
+    printf("[STACK] calculate used=%luB free_min=%luB cfg=%luB\r\n", used_bytes, free_bytes, cfg_bytes);
+  }
+
+  if (SensorTaskHandle != NULL)
+  {
+    free_words = uxTaskGetStackHighWaterMark((TaskHandle_t)SensorTaskHandle);
+    free_bytes = (uint32_t)free_words * sizeof(StackType_t);
+    cfg_bytes = STACK_WORDS_SENSOR_TASK * sizeof(StackType_t);
+    used_bytes = (cfg_bytes >= free_bytes) ? (cfg_bytes - free_bytes) : 0U;
+    printf("[STACK] sensor used=%luB free_min=%luB cfg=%luB\r\n", used_bytes, free_bytes, cfg_bytes);
+  }
+
+#if DOG_SWITCH == RC_MODE
+  if (RemoteContrlTaskHandle != NULL)
+  {
+    free_words = uxTaskGetStackHighWaterMark((TaskHandle_t)RemoteContrlTaskHandle);
+    free_bytes = (uint32_t)free_words * sizeof(StackType_t);
+    cfg_bytes = STACK_WORDS_REMOTE_TASK * sizeof(StackType_t);
+    used_bytes = (cfg_bytes >= free_bytes) ? (cfg_bytes - free_bytes) : 0U;
+    printf("[STACK] remote used=%luB free_min=%luB cfg=%luB\r\n", used_bytes, free_bytes, cfg_bytes);
+  }
+#elif DOG_SWITCH == AUTO_MODE
+  if (PlanningTaskHandle != NULL)
+  {
+    free_words = uxTaskGetStackHighWaterMark((TaskHandle_t)PlanningTaskHandle);
+    free_bytes = (uint32_t)free_words * sizeof(StackType_t);
+    cfg_bytes = STACK_WORDS_PLANNING_TASK * sizeof(StackType_t);
+    used_bytes = (cfg_bytes >= free_bytes) ? (cfg_bytes - free_bytes) : 0U;
+    printf("[STACK] planning used=%luB free_min=%luB cfg=%luB\r\n", used_bytes, free_bytes, cfg_bytes);
+  }
+#endif
 }
 
 void TargetSwitch(void const *argument)
 {
+  osSignalWait(Signal_DogInitOK, osWaitForever);
+  /* Infinite loop */
   for (;;)
   {
     task_switch(&world.dog, &world.box_groups, &world.return_field);
     osDelay(1000);
   }
 }
+
 void Planning(void const *argument)
 {
+  osSignalWait(Signal_DogInitOK, osWaitForever);
+  world.dog.plan.type = POINT_TO_POINT;
+  world.dog.target_location.pos.x = 10.0f;
+  world.dog.target_location.pos.y = 10.0f;
+  ActionControl_InitWithDog(&world.dog);
+
   for (;;)
   {
     dog_Planning(&world.dog);

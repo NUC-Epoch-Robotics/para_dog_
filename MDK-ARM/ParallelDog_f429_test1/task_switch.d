@@ -44,6 +44,7 @@ paralleldog_f429_test1\task_switch.o: ../Lib/Control/GO_M8010/ris_protocol.h
 paralleldog_f429_test1\task_switch.o: ../Lib/Control/curve_motion/curve.h
 paralleldog_f429_test1\task_switch.o: ../Lib/Mission/task_switch.h
 paralleldog_f429_test1\task_switch.o: ../Lib/Planning/planning.h
+paralleldog_f429_test1\task_switch.o: ../Lib/Planning/Obstacle_Crossing.h
 paralleldog_f429_test1\task_switch.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
 paralleldog_f429_test1\task_switch.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
 paralleldog_f429_test1\task_switch.o: ../Core/Inc/FreeRTOSConfig.h
@@ -58,3 +59,4 @@ paralleldog_f429_test1\task_switch.o: ../Middlewares/Third_Party/FreeRTOS/Source
 paralleldog_f429_test1\task_switch.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h
 paralleldog_f429_test1\task_switch.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h
 paralleldog_f429_test1\task_switch.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h
+paralleldog_f429_test1\task_switch.o: C:\AppWorking\Keli5.43\ARM\ARMCC\include\string.h

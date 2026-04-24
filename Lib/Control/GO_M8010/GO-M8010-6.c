@@ -96,12 +96,12 @@ HAL_StatusTypeDef SERVO_Send_recv(MOTOR_send *pData, MOTOR_recv *rData)
 
   SET_485_DE_UP();
   SET_485_RE_UP();
-  HAL_UART_Transmit(&huart1, (uint8_t *)pData, sizeof(pData->motor_send_data), 10);
+  HAL_UART_Transmit(&huart1, (uint8_t *)pData, sizeof(pData->motor_send_data), 5);
 
 
   SET_485_RE_DOWN();
   SET_485_DE_DOWN();
-  HAL_UARTEx_ReceiveToIdle(&huart1, (uint8_t *)rData, sizeof(rData->motor_recv_data), &rxlen, 10);
+  HAL_UARTEx_ReceiveToIdle(&huart1, (uint8_t *)rData, sizeof(rData->motor_recv_data), &rxlen, 5);
 
   if(rxlen == 0)
 

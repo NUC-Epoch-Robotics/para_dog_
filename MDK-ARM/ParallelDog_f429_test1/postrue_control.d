@@ -42,11 +42,12 @@ paralleldog_f429_test1\postrue_control.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/st
 paralleldog_f429_test1\postrue_control.o: ../Lib/Control/GO_M8010/ris_protocol.h
 paralleldog_f429_test1\postrue_control.o: ../Lib/Control/curve_motion/curve.h
 paralleldog_f429_test1\postrue_control.o: ../Lib/Mission/task_switch.h
-paralleldog_f429_test1\postrue_control.o: ../Lib/Planning/planning.h
 paralleldog_f429_test1\postrue_control.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stdbool.h
+paralleldog_f429_test1\postrue_control.o: ../Lib/Planning/planning.h
+paralleldog_f429_test1\postrue_control.o: ../Lib/Planning/Obstacle_Crossing.h
 paralleldog_f429_test1\postrue_control.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\math.h
-paralleldog_f429_test1\postrue_control.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stdio.h
-paralleldog_f429_test1\postrue_control.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\string.h
+paralleldog_f429_test1\postrue_control.o: C:\AppWorking\Keli5.43\ARM\ARMCC\include\stdio.h
+paralleldog_f429_test1\postrue_control.o: C:\AppWorking\Keli5.43\ARM\ARMCC\include\string.h
 paralleldog_f429_test1\postrue_control.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stdlib.h
 paralleldog_f429_test1\postrue_control.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
 paralleldog_f429_test1\postrue_control.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
@@ -63,4 +64,4 @@ paralleldog_f429_test1\postrue_control.o: ../Middlewares/Third_Party/FreeRTOS/So
 paralleldog_f429_test1\postrue_control.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h
 paralleldog_f429_test1\postrue_control.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h
 paralleldog_f429_test1\postrue_control.o: ../Lib/Control/curve_motion/SimpleMatrix/simple_matrix.h
-paralleldog_f429_test1\postrue_control.o: ../Lib/Vofa/vofa_Debug.h
+paralleldog_f429_test1\postrue_control.o: ..\Lib\Control\Vofa\vofa_Debug.h

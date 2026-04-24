@@ -1,6 +1,6 @@
 paralleldog_f429_test1\hwt605.o: ..\Lib\Perception\hwt605\hwt605.c
 paralleldog_f429_test1\hwt605.o: ..\Lib\Perception\hwt605\hwt605.h
-paralleldog_f429_test1\hwt605.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stdint.h
+paralleldog_f429_test1\hwt605.o: C:\AppWorking\Keli5.43\ARM\ARMCC\include\stdint.h
 paralleldog_f429_test1\hwt605.o: ../Core/Inc/can.h
 paralleldog_f429_test1\hwt605.o: ../Core/Inc/main.h
 paralleldog_f429_test1\hwt605.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h
@@ -41,3 +41,13 @@ paralleldog_f429_test1\hwt605.o: ../Lib/Perception/wit_c_sdk/wit_c_sdk/wit_c_sdk
 paralleldog_f429_test1\hwt605.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stdio.h
 paralleldog_f429_test1\hwt605.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\string.h
 paralleldog_f429_test1\hwt605.o: ../Lib/Perception/wit_c_sdk/wit_c_sdk/REG.h
+paralleldog_f429_test1\hwt605.o: ../Lib/World/world.h
+paralleldog_f429_test1\hwt605.o: C:\AppWorking\Keli5.43\ARM\ARMCC\Bin\..\include\stdbool.h
+paralleldog_f429_test1\hwt605.o: ../Lib/World/dog.h
+paralleldog_f429_test1\hwt605.o: ../Lib/Control/GO_M8010/GO_ctrl.h
+paralleldog_f429_test1\hwt605.o: ../Lib/Control/GO_M8010/motor_control.h
+paralleldog_f429_test1\hwt605.o: ../Lib/Control/GO_M8010/ris_protocol.h
+paralleldog_f429_test1\hwt605.o: ../Lib/Control/curve_motion/curve.h
+paralleldog_f429_test1\hwt605.o: ../Lib/Mission/task_switch.h
+paralleldog_f429_test1\hwt605.o: ../Lib/Planning/planning.h
+paralleldog_f429_test1\hwt605.o: ../Lib/Planning/Obstacle_Crossing.h

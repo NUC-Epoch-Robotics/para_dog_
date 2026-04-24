@@ -43,11 +43,44 @@ bezierPoint bezierCurve(bezierPoint const (*node)[4],uint8_t n,float t)
   return result;
 }
 
+/**
+ * @brief 缩放贝塞尔曲线控制点
+ * @param dest 目标数组，存储缩放后的控制点
+ * @param src 源数组，原始控制点
+ * @param count 控制点数量
+ * @param scale_x X方向缩放比例
+ * @param scale_y Y方向缩放比例（相对于中性y值）
+ * @param neutral_y 中性y值，Y方向偏移以此为基准计算
+ */
+void bezierCurve_Scale(bezierPoint dest[], const bezierPoint src[], uint8_t count, 
+                       float scale_x, float scale_y, float neutral_y)
+{
+    for (uint8_t i = 0; i < count && i < 4; i++)
+    {
+        // X方向直接缩放
+        dest[i].x = src[i].x * scale_x;
+        
+        // Y方向：相对于中性y值进行缩放，保留中性位置
+        // 如果y值接近中性值，保持中性值不变
+        if (fabsf(src[i].y - neutral_y) < 0.5f)
+        {
+            // 几乎等于中性值，保持不变
+            dest[i].y = neutral_y;
+        }
+        else
+        {
+            // Y偏移量乘以缩放比例
+            float y_offset = src[i].y - neutral_y;
+            dest[i].y = neutral_y + y_offset * scale_y;
+        }
+    }
+}
+
 //bezierPoint node[29][4]={//单腿bezier动作节点(x,y)
 //	{{0,190.53},{-56,127},{ 56,127},{ 99,214}},
 //
 //	{{0 ,190.53f},{12.5,100.0f},{25,190.53f},{100,190.53f}},	//STEP_FORE1
-//	{{0,190.53},{-12.5,200.0f},{-25,190.53},{ 99,214}},		//KICK_BACK1
+//	{{0,190.53},{-12.5,200.0f},{-25,190.53f},{ 99,214}},		//KICK_BACK1
 //	{{-25,190.53f},{-30,100.0f},{30,100.0f},{25,190.53f}},	//STEP_FORE2
 //	{{25,190.53},{0,200.0f},{-25,190.53f},{ 99,214}},			//KICK_BACK2
 //
@@ -113,7 +146,6 @@ bezierPoint bezierCurve(bezierPoint const (*node)[4],uint8_t n,float t)
 //		0.3,0.3,0.3,0.3,//WALK_BACK
 //	1
 //		};//s
-
 
 
 

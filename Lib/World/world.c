@@ -1,18 +1,23 @@
-﻿#include "world.h"
+#include "world.h"
+#include "postrue_control.h"
 #include <string.h>
 
 static void box_group_init(BoxGroup (*box_groups)[4])
 {
+    if (box_groups == NULL)
+    {
+        Error_Handler();
+    }
     static const Coordinates box_initpos[4][2] = {
-        {{100.0f, 100.0f}, {100.0f, 300.0f}},
-        {{300.0f, 100.0f}, {300.0f, 300.0f}},
-        {{500.0f, 100.0f}, {500.0f, 300.0f}},
-        {{700.0f, 100.0f}, {700.0f, 300.0f}}};
+        {{10.0f, 10.0f}, {10.0f, 30.0f}},
+        {{30.0f, 10.0f}, {30.0f, 30.0f}},
+        {{50.0f, 10.0f}, {50.0f, 30.0f}},
+        {{70.0f, 10.0f}, {70.0f, 30.0f}}};
     static const Coordinates pick_initpos[4][2] = {
-        {{100.0f, 60.0f}, {100.0f, 340.0f}},
-        {{300.0f, 60.0f}, {300.0f, 340.0f}},
-        {{500.0f, 60.0f}, {500.0f, 340.0f}},
-        {{700.0f, 60.0f}, {700.0f, 340.0f}}};
+        {{10.0f, 60.0f}, {10.0f, 30.0f}},
+        {{30.0f, 60.0f}, {30.0f, 30.0f}},
+        {{50.0f, 60.0f}, {50.0f, 30.0f}},
+        {{70.0f, 60.0f}, {70.0f, 30.0f}}};
 
     for (uint8_t i = 0; i < 4; i++)
     {
@@ -37,6 +42,10 @@ static void box_group_init(BoxGroup (*box_groups)[4])
 }
 void return_field_init(ReturnField *return_field)
 {
+    if (return_field == NULL)
+    {
+        Error_Handler();
+    }
     static const Coordinates return_positions[4] = {
         {100.0f, 500.0f},
         {300.0f, 500.0f},
@@ -60,10 +69,11 @@ void world_init(WorldModel *world)
 {
     if (world == NULL)
     {
-        return;
+       Error_Handler();
     }
 
     memset(world, 0, sizeof(*world));
+    Dog_Init(&world->dog);
     box_group_init(&world->box_groups);
     return_field_init(world->return_field);
 }
